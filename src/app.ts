@@ -4,6 +4,7 @@ import type { Env } from "./types";
 import { publicRouter } from "./routes/public";
 import { setupRouter } from "./routes/setup";
 import { adminDashboardRouter } from "./routes/adminDashboard";
+import { adminCategoriesRouter } from "./routes/adminCategories";
 import { authRouter } from "./routes/auth";
 import { ensureSchema } from "./lib/schema";
 
@@ -30,5 +31,8 @@ app.route("/auth", authRouter);
 
 // Admin dashboard routes (guarded)
 app.route("/admin", adminDashboardRouter);
+
+// Admin categories routes (guarded, /admin/categories/*)
+app.route("/admin/categories", adminCategoriesRouter);
 
 export default app;

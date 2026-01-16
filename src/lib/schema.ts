@@ -31,6 +31,17 @@ export async function ensureSchema(env: Env): Promise<void> {
         expires_at TEXT NOT NULL,
         FOREIGN KEY(user_id) REFERENCES users(id)
       );
+    `),
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        description TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
     `)
   ]);
 }
