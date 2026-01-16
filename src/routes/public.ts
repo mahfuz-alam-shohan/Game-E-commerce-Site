@@ -35,7 +35,10 @@ publicRouter.get("/", async c => {
     layout("GameStore – Landing", body, {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     })
   );
 });

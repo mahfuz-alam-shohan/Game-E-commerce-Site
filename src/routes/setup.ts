@@ -4,7 +4,7 @@ import type { Env } from "../types";
 import { layout } from "../lib/html";
 import {
   hasAnyAdmin,
-  saveSiteSettings,
+  saveInitialSiteSettings,
   createFirstAdmin,
   getSiteSettings
 } from "../services/setupService";
@@ -59,7 +59,10 @@ setupRouter.get("/site", async c => {
     layout("Setup – Site", body, {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     })
   );
 });
@@ -90,13 +93,16 @@ setupRouter.post("/site", async c => {
       layout("Setup – Site", body, {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle
       }),
       400
     );
   }
 
-  await saveSiteSettings(c.env, {
+  await saveInitialSiteSettings(c.env, {
     siteName,
     siteMotto,
     siteLogoUrl
@@ -154,7 +160,10 @@ setupRouter.get("/admin", async c => {
     layout("Setup – Admin", body, {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     })
   );
 });
@@ -186,7 +195,10 @@ setupRouter.post("/admin", async c => {
       layout("Setup – Admin", body, {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle
       }),
       400
     );
@@ -211,7 +223,10 @@ setupRouter.post("/admin", async c => {
       layout("Setup – Admin", body, {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle
       }),
       400
     );

@@ -3,12 +3,25 @@ import type { Env } from "../types";
 import { getDb } from "../lib/db";
 import { hashPassword } from "../lib/security";
 
+export type ThemeMode = "dark" | "light";
+export type LogoMode = "none" | "text" | "url" | "r2";
+export type LogoTextStyle = "plain" | "sticker" | "outline" | "soft";
+
 export interface SiteSettings {
   siteName: string;
   siteMotto: string;
   siteLogoUrl: string;
-  themeMode: "dark" | "light";
+  siteLogoMode: LogoMode;
+  siteLogoR2Key: string;
+  siteLogoTextStyle: LogoTextStyle;
+  themeMode: ThemeMode;
   themePrimary: string;
+}
+
+function getString(map: Map<string, string>, key: string, fallback: string): string {
+  const v = map.get(key);
+  if (v == null) return fallback;
+  return String(v);
 }
 
 export async function getSiteSettings(env: Env): Promise<SiteSettings> {
@@ -26,16 +39,32 @@ export async function getSiteSettings(env: Env): Promise<SiteSettings> {
     }
   }
 
-  const themeModeRaw = map.get("theme_mode") || "dark";
-  const themeMode: "dark" | "light" =
-    themeModeRaw === "light" ? "light" : "dark";
+  const themeModeRaw = getString(map, "theme_mode", "dark");
+  const themeMode: ThemeMode = themeModeRaw === "light" ? "light" : "dark";
 
-  const themePrimary = map.get("theme_primary") || "#22c55e";
+  const themePrimary = getString(map, "theme_primary", "#22c55e");
+
+  const logoModeRaw = getString(map, "site_logo_mode", "none");
+  const logoMode: LogoMode =
+    logoModeRaw === "text" || logoModeRaw === "url" || logoModeRaw === "r2"
+      ? logoModeRaw
+      : "none";
+
+  const logoTextStyleRaw = getString(map, "site_logo_text_style", "plain");
+  const logoTextStyle: LogoTextStyle =
+    logoTextStyleRaw === "sticker" ||
+    logoTextStyleRaw === "outline" ||
+    logoTextStyleRaw === "soft"
+      ? logoTextStyleRaw
+      : "plain";
 
   return {
-    siteName: map.get("site_name") || "GameStore",
-    siteMotto: map.get("site_motto") || "",
-    siteLogoUrl: map.get("site_logo_url") || "",
+    siteName: getString(map, "site_name", "GameStore"),
+    siteMotto: getString(map, "site_motto", ""),
+    siteLogoUrl: getString(map, "site_logo_url", ""),
+    siteLogoMode: logoMode,
+    siteLogoR2Key: getString(map, "site_logo_r2_key", ""),
+    siteLogoTextStyle: logoTextStyle,
     themeMode,
     themePrimary
   };
@@ -49,12 +78,64 @@ export async function hasAnyAdmin(env: Env): Promise<boolean> {
   return !!row;
 }
 
-export async function saveSiteSettings(env: Env, data: {
+// Used during initial setup
+export async function saveInitialSiteSettings(env: Env, data: {
   siteName: string;
   siteMotto?: string;
   siteLogoUrl?: string;
 }): Promise<void> {
   const db = getDb(env);
+  const siteName = data.siteName;
+  const motto = data.siteMotto ?? "";
+  const logoUrl = data.siteLogoUrl ?? "";
+
+  const logoMode: LogoMode = logoUrl ? "url" : "none";
+
+  const stmts = [
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_name", siteName),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_motto", motto),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_url", logoUrl),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_mode", logoMode),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_text_style", "plain"),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_r2_key", "")
+  ];
+
+  await db.batch(stmts);
+}
+
+// Admin settings: branding + logo mode
+export async function updateBrandSettings(env: Env, data: {
+  siteName: string;
+  siteMotto: string;
+  siteLogoUrl: string;
+  logoMode: LogoMode;
+  logoTextStyle: LogoTextStyle;
+}): Promise<void> {
+  const db = getDb(env);
+
+  const safeLogoMode: LogoMode =
+    data.logoMode === "text" || data.logoMode === "url" || data.logoMode === "r2"
+      ? data.logoMode
+      : "none";
+
+  const safeTextStyle: LogoTextStyle =
+    data.logoTextStyle === "sticker" ||
+    data.logoTextStyle === "outline" ||
+    data.logoTextStyle === "soft"
+      ? data.logoTextStyle
+      : "plain";
 
   const stmts = [
     db.prepare(
@@ -62,21 +143,28 @@ export async function saveSiteSettings(env: Env, data: {
     ).bind("site_name", data.siteName),
     db.prepare(
       "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
-    ).bind("site_motto", data.siteMotto ?? ""),
+    ).bind("site_motto", data.siteMotto),
     db.prepare(
       "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
-    ).bind("site_logo_url", data.siteLogoUrl ?? "")
+    ).bind("site_logo_url", data.siteLogoUrl),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_mode", safeLogoMode),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_text_style", safeTextStyle)
   ];
 
   await db.batch(stmts);
 }
 
+// Theme settings
 export async function updateThemeSettings(env: Env, data: {
-  themeMode: "dark" | "light";
+  themeMode: ThemeMode;
   themePrimary: string;
 }): Promise<void> {
   const db = getDb(env);
-  const mode: "dark" | "light" =
+  const mode: ThemeMode =
     data.themeMode === "light" ? "light" : "dark";
   const primary = data.themePrimary || "#22c55e";
 
@@ -89,6 +177,20 @@ export async function updateThemeSettings(env: Env, data: {
     ).bind("theme_primary", primary)
   ];
 
+  await db.batch(stmts);
+}
+
+// Called when an image logo is uploaded to R2
+export async function setR2Logo(env: Env, key: string): Promise<void> {
+  const db = getDb(env);
+  const stmts = [
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_r2_key", key),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("site_logo_mode", "r2")
+  ];
   await db.batch(stmts);
 }
 

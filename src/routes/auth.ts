@@ -45,7 +45,10 @@ authRouter.get("/login", async c => {
     layout("Admin login", body, {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     })
   );
 });
@@ -75,7 +78,10 @@ authRouter.post("/login", async c => {
       layout("Admin login", body, {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle
       }),
       400
     );
@@ -102,7 +108,10 @@ authRouter.post("/login", async c => {
       layout("Admin login", body, {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle
       }),
       401
     );
@@ -128,7 +137,10 @@ authRouter.post("/login", async c => {
       layout("Admin login", body, {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle
       }),
       401
     );
@@ -162,7 +174,6 @@ authRouter.get("/logout", async c => {
   }
   clearSessionCookie(c);
 
-  // Simple logout confirmation
   const body = `
     <div class="page-narrow">
       <h1 class="page-title">Signed out</h1>
@@ -180,7 +191,10 @@ authRouter.get("/logout", async c => {
     layout("Signed out", body, {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     })
   );
 });

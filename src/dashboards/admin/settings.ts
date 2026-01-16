@@ -5,6 +5,26 @@ export function adminSettingsView(settings: SiteSettings) {
   const darkSelected = settings.themeMode === "dark" ? "selected" : "";
   const lightSelected = settings.themeMode === "light" ? "selected" : "";
 
+  const mode = settings.siteLogoMode;
+  const modeNone = mode === "none" ? "checked" : "";
+  const modeText = mode === "text" ? "checked" : "";
+  const modeUrl = mode === "url" ? "checked" : "";
+  const modeR2 = mode === "r2" ? "checked" : "";
+
+  const stylePlain = settings.siteLogoTextStyle === "plain" ? "checked" : "";
+  const styleSticker = settings.siteLogoTextStyle === "sticker" ? "checked" : "";
+  const styleOutline = settings.siteLogoTextStyle === "outline" ? "checked" : "";
+  const styleSoft = settings.siteLogoTextStyle === "soft" ? "checked" : "";
+
+  const currentLogoSource =
+    settings.siteLogoMode === "r2"
+      ? "Using R2 image logo"
+      : settings.siteLogoMode === "url" && settings.siteLogoUrl
+      ? "Using URL image logo"
+      : settings.siteLogoMode === "text"
+      ? "Using styled text logo"
+      : "No logo in use (plain title)";
+
   return `
     <div class="page">
       <h1 class="page-title">Site & theme settings</h1>
@@ -30,12 +50,62 @@ export function adminSettingsView(settings: SiteSettings) {
               </label>
               <input id="site_motto" name="site_motto" value="${settings.siteMotto}" />
             </div>
+
+            <h3 class="card-title" style="margin-top:18px;font-size:14px;">Logo mode</h3>
+            <p class="card-subtitle">
+              Choose how the logo is rendered in the header. Text mode turns the site name into a “sticker” style logo.
+            </p>
+
+            <div class="field">
+              <label>Source</label>
+              <div class="stack-sm" style="margin-top:4px;">
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_mode" value="none" ${modeNone} />
+                  <span style="margin-left:4px;">No logo – plain site name</span>
+                </label>
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_mode" value="text" ${modeText} />
+                  <span style="margin-left:4px;">Text logo (styled site name)</span>
+                </label>
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_mode" value="url" ${modeUrl} />
+                  <span style="margin-left:4px;">Image from URL</span>
+                </label>
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_mode" value="r2" ${modeR2} />
+                  <span style="margin-left:4px;">Image from R2 upload</span>
+                </label>
+              </div>
+            </div>
+
             <div class="field">
               <label for="site_logo_url">
-                Logo URL
-                <small>(used in frontend later – for now only stored)</small>
+                Logo image URL
+                <small>(used when “Image from URL” is selected)</small>
               </label>
               <input id="site_logo_url" name="site_logo_url" value="${settings.siteLogoUrl}" />
+            </div>
+
+            <div class="field">
+              <label>Text logo style</label>
+              <div class="stack-sm" style="margin-top:4px;">
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_text_style" value="plain" ${stylePlain} />
+                  <span style="margin-left:4px;">Plain – bold uppercase text</span>
+                </label>
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_text_style" value="sticker" ${styleSticker} />
+                  <span style="margin-left:4px;">Sticker – solid badge, like a label</span>
+                </label>
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_text_style" value="outline" ${styleOutline} />
+                  <span style="margin-left:4px;">Outline – bordered text sticker</span>
+                </label>
+                <label style="font-size:13px;">
+                  <input type="radio" name="logo_text_style" value="soft" ${styleSoft} />
+                  <span style="margin-left:4px;">Soft gradient – pill shaped gradient logo</span>
+                </label>
+              </div>
             </div>
 
             <h3 class="card-title" style="margin-top:18px;font-size:14px;">Theme</h3>
@@ -61,6 +131,26 @@ export function adminSettingsView(settings: SiteSettings) {
 
             <div class="form-actions">
               <button type="submit" class="btn">Save changes</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">Logo image upload (R2)</h2>
+          <p class="card-subtitle">
+            Upload a logo file to R2 storage. On success, the logo mode will switch to “Image from R2”.<br/>
+            ${currentLogoSource}
+          </p>
+          <form method="POST" action="/admin/logo/upload" enctype="multipart/form-data">
+            <div class="field">
+              <label for="logo_file">
+                Logo file
+                <small>(PNG/JPEG/SVG, up to ~512 KB)</small>
+              </label>
+              <input id="logo_file" name="logo_file" type="file" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn">Upload logo to R2</button>
             </div>
           </form>
         </section>

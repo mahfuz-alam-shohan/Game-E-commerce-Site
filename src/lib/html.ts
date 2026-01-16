@@ -1,14 +1,57 @@
 // src/lib/html.ts
+import type { LogoMode, LogoTextStyle, ThemeMode } from "../services/setupService";
 
 export interface LayoutOptions {
   siteName?: string;
-  themeMode?: "dark" | "light";
+  themeMode?: ThemeMode;
   themePrimary?: string;
+  logoMode?: LogoMode;
+  logoUrl?: string;
+  logoTextStyle?: LogoTextStyle;
+}
+
+function renderBrand(opts: LayoutOptions): string {
+  const name = opts.siteName || "GameStore";
+  const mode: LogoMode = opts.logoMode || "none";
+  const textStyle: LogoTextStyle = opts.logoTextStyle || "plain";
+  const url = opts.logoUrl || "";
+
+  if (mode === "text") {
+    const cls =
+      textStyle === "sticker"
+        ? "logo-text logo-sticker"
+        : textStyle === "outline"
+        ? "logo-text logo-outline"
+        : textStyle === "soft"
+        ? "logo-text logo-soft"
+        : "logo-text";
+    return `<span class="${cls}">${name}</span>`;
+  }
+
+  if (mode === "r2") {
+    return `
+      <div class="brand-logo-wrap">
+        <img src="/media/logo" alt="${name}" class="brand-logo-img" />
+        <span class="brand-logo-text">${name}</span>
+      </div>
+    `;
+  }
+
+  if (mode === "url" && url) {
+    return `
+      <div class="brand-logo-wrap">
+        <img src="${url}" alt="${name}" class="brand-logo-img" />
+        <span class="brand-logo-text">${name}</span>
+      </div>
+    `;
+  }
+
+  return `<div class="brand-title">${name}</div>`;
 }
 
 export function layout(title: string, body: string, opts?: LayoutOptions): string {
   const siteName = opts?.siteName || "GameStore";
-  const mode: "dark" | "light" =
+  const mode: ThemeMode =
     opts?.themeMode === "light" ? "light" : "dark";
   const primary = opts?.themePrimary || "#22c55e";
 
@@ -17,6 +60,13 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
   const border = mode === "light" ? "#e5e7eb" : "#111827";
   const cardBg = mode === "light" ? "#ffffff" : "#020617";
   const muted = mode === "light" ? "#6b7280" : "#9ca3af";
+
+  const brandHtml = renderBrand({
+    siteName,
+    logoMode: opts?.logoMode,
+    logoUrl: opts?.logoUrl,
+    logoTextStyle: opts?.logoTextStyle
+  });
 
   return `<!doctype html>
 <html lang="en">
@@ -57,6 +107,9 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     header > div {
       font-weight: 600;
       font-size: 15px;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     header nav a {
       margin-left: 8px;
@@ -65,6 +118,55 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       width: 100%;
       padding: 20px 16px 40px;
       flex: 1;
+    }
+
+    .brand-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .brand-logo-wrap {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .brand-logo-img {
+      width:28px;
+      height:28px;
+      border-radius:6px;
+      object-fit:contain;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+    }
+    .brand-logo-text {
+      font-weight:600;
+      font-size:14px;
+    }
+
+    .logo-text {
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    .logo-sticker {
+      padding:4px 8px;
+      border-radius:8px;
+      background:var(--color-primary);
+      color:#020617;
+      box-shadow:0 4px 12px rgba(0,0,0,0.35);
+    }
+    .logo-outline {
+      padding:3px 7px;
+      border-radius:8px;
+      border:2px solid var(--color-primary);
+      color:var(--color-text);
+    }
+    .logo-soft {
+      padding:4px 9px;
+      border-radius:999px;
+      background:linear-gradient(135deg, var(--color-primary), rgba(59,130,246,0.6));
+      color:#020617;
+      box-shadow:0 6px 18px rgba(0,0,0,0.4);
     }
 
     .btn {
@@ -263,7 +365,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 </head>
 <body>
   <header>
-    <div>${siteName}</div>
+    <div>${brandHtml}</div>
     <nav>
       <a href="/" class="btn-secondary btn">Home</a>
     </nav>

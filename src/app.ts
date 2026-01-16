@@ -5,7 +5,9 @@ import { publicRouter } from "./routes/public";
 import { setupRouter } from "./routes/setup";
 import { adminDashboardRouter } from "./routes/adminDashboard";
 import { adminCategoriesRouter } from "./routes/adminCategories";
+import { adminLogoRouter } from "./routes/adminLogo";
 import { authRouter } from "./routes/auth";
+import { mediaRouter } from "./routes/media";
 import { ensureSchema } from "./lib/schema";
 
 export const app = new Hono<{ Bindings: Env }>();
@@ -23,6 +25,9 @@ app.use("*", async (c, next) => {
 // Public routes
 app.route("/", publicRouter);
 
+// Static/media routes
+app.route("/media", mediaRouter);
+
 // Setup routes (only before first admin exists)
 app.route("/setup", setupRouter);
 
@@ -34,5 +39,8 @@ app.route("/admin", adminDashboardRouter);
 
 // Admin categories routes (guarded, /admin/categories/*)
 app.route("/admin/categories", adminCategoriesRouter);
+
+// Admin logo upload (guarded, /admin/logo/*)
+app.route("/admin/logo", adminLogoRouter);
 
 export default app;

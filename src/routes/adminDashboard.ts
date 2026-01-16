@@ -8,7 +8,7 @@ import { adminSettingsView, adminSettingsErrorView } from "../dashboards/admin/s
 import { requireAdmin } from "../lib/auth";
 import {
   getSiteSettings,
-  saveSiteSettings,
+  updateBrandSettings,
   updateThemeSettings
 } from "../services/setupService";
 
@@ -32,7 +32,10 @@ adminDashboardRouter.get("/", async c => {
     layoutOptions: {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     }
   });
 
@@ -51,7 +54,10 @@ adminDashboardRouter.get("/settings", async c => {
     layoutOptions: {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle
     }
   });
 
@@ -68,6 +74,8 @@ adminDashboardRouter.post("/settings", async c => {
   const siteLogoUrl = (formData.get("site_logo_url") || "").toString().trim();
   const themeModeRaw = (formData.get("theme_mode") || "").toString().trim();
   const themePrimary = (formData.get("theme_primary") || "").toString().trim();
+  const logoModeRaw = (formData.get("logo_mode") || "").toString().trim();
+  const logoTextStyleRaw = (formData.get("logo_text_style") || "").toString().trim();
 
   if (!siteName) {
     const html = renderDashboardShell({
@@ -78,20 +86,36 @@ adminDashboardRouter.post("/settings", async c => {
       layoutOptions: {
         siteName: settingsBefore.siteName,
         themeMode: settingsBefore.themeMode,
-        themePrimary: settingsBefore.themePrimary
+        themePrimary: settingsBefore.themePrimary,
+        logoMode: settingsBefore.siteLogoMode,
+        logoUrl:
+          settingsBefore.siteLogoMode === "url"
+            ? settingsBefore.siteLogoUrl
+            : undefined,
+        logoTextStyle: settingsBefore.siteLogoTextStyle
       }
     });
     return c.html(html, 400);
   }
 
   try {
-    await saveSiteSettings(c.env, {
+    await updateBrandSettings(c.env, {
       siteName,
       siteMotto,
-      siteLogoUrl
+      siteLogoUrl,
+      logoMode:
+        logoModeRaw === "text" || logoModeRaw === "url" || logoModeRaw === "r2"
+          ? (logoModeRaw as any)
+          : "none",
+      logoTextStyle:
+        logoTextStyleRaw === "sticker" ||
+        logoTextStyleRaw === "outline" ||
+        logoTextStyleRaw === "soft"
+          ? (logoTextStyleRaw as any)
+          : "plain"
     });
 
-    const themeMode: "dark" | "light" =
+    const themeMode =
       themeModeRaw === "light" ? "light" : "dark";
 
     await updateThemeSettings(c.env, {
@@ -107,7 +131,13 @@ adminDashboardRouter.post("/settings", async c => {
       layoutOptions: {
         siteName: settingsBefore.siteName,
         themeMode: settingsBefore.themeMode,
-        themePrimary: settingsBefore.themePrimary
+        themePrimary: settingsBefore.themePrimary,
+        logoMode: settingsBefore.siteLogoMode,
+        logoUrl:
+          settingsBefore.siteLogoMode === "url"
+            ? settingsBefore.siteLogoUrl
+            : undefined,
+        logoTextStyle: settingsBefore.siteLogoTextStyle
       }
     });
     return c.html(html, 500);
