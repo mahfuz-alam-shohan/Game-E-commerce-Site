@@ -10,20 +10,35 @@ publicRouter.get("/", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   const settings = await getSiteSettings(c.env);
 
-  const cta = adminExists
-    ? `<a href="/admin" class="btn">Open admin dashboard</a>`
-    : `<a href="/setup/site" class="btn">Start initial setup</a>`;
+  // Read user from context (set in app.ts middleware)
+  const user: any = (c as any).get?.("user") || undefined;
 
-  // Sidebar for logged-out / public visitors
-  // (later we can swap this to admin menu when user is logged in)
+  const cta = user
+    ? `<a href="/admin" class="btn">Open admin dashboard</a>`
+    : adminExists
+      ? `<a href="/auth/login" class="btn">Admin login</a>`
+      : `<a href="/setup/site" class="btn">Start initial setup</a>`;
+
+  // Sidebar for public / landing
+  const sidebarLinks = user
+    ? `
+      <a href="/">Home</a>
+      <a href="/admin">Dashboard</a>
+      <a href="#">Browse optimizers (coming soon)</a>
+      <a href="#">Skins & passes (coming soon)</a>
+    `
+    : `
+      <a href="/">Home</a>
+      <a href="/auth/login">Admin login</a>
+      <a href="#">Browse optimizers (coming soon)</a>
+      <a href="#">Skins & passes (coming soon)</a>
+    `;
+
   const sidebar = `
     <aside class="app-sidebar">
       <h3 class="app-sidebar-title">NAVIGATION</h3>
       <nav class="app-sidebar-nav">
-        <a href="/">Home</a>
-        <a href="/auth/login">Admin login</a>
-        <a href="#">Browse optimizers (coming soon)</a>
-        <a href="#">Skins & passes (coming soon)</a>
+        ${sidebarLinks}
       </nav>
     </aside>
   `;
@@ -66,7 +81,9 @@ publicRouter.get("/", async c => {
       topbarText: settings.topbarText,
       sidebarBg: settings.sidebarBg,
       sidebarText: settings.sidebarText,
-      showSidebarToggle: true // 🔑 this turns on the phone menu toggle
+      showSidebarToggle: true,
+      userName: user?.name,
+      userAvatarUrl: user?.avatar_url ?? null
     })
   );
 });
