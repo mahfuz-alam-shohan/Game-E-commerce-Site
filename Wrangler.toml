@@ -1,0 +1,14 @@
+name = "routine"
+main = ""
+compatibility_date = "2024-01-01"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "gamestore"
+database_id = "c86eddfb-dcc5-4904-8bfd-c337b1691ca3"
+
+# R2 Bucket Binding
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "gamestore"
