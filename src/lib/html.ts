@@ -16,7 +16,11 @@ export interface LayoutOptions {
   topbarText?: string;
   sidebarBg?: string;
   sidebarText?: string;
-  hideHeader?: boolean; // true for admin shell pages (no global header)
+
+  // For admin pages with sidebar
+  showSidebarToggle?: boolean;
+  userName?: string;
+  userAvatarUrl?: string | null;
 }
 
 function renderBrand(opts: LayoutOptions): string {
@@ -58,10 +62,17 @@ function renderBrand(opts: LayoutOptions): string {
   return `<div class="brand-title">${name}</div>`;
 }
 
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export function layout(title: string, body: string, opts?: LayoutOptions): string {
   const siteName = opts?.siteName || "GameStore";
-  const mode: ThemeMode =
-    opts?.themeMode === "light" ? "light" : "dark";
+  const mode: ThemeMode = opts?.themeMode === "light" ? "light" : "dark";
   const primary = opts?.themePrimary || "#22c55e";
 
   const bg = mode === "light" ? "#f9fafb" : "#020617";
@@ -70,14 +81,16 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
   const cardBg = mode === "light" ? "#ffffff" : "#020617";
   const muted = mode === "light" ? "#6b7280" : "#9ca3af";
 
-  const topbarBg =
-    opts?.topbarBg || (mode === "light" ? "#ffffff" : "#020617");
-  const topbarText =
-    opts?.topbarText || (mode === "light" ? "#020617" : "#e5e7eb");
-  const sidebarBg =
-    opts?.sidebarBg || (mode === "light" ? "#f3f4f6" : "#020617");
-  const sidebarText =
-    opts?.sidebarText || (mode === "light" ? "#020617" : "#e5e7eb");
+  const topbarBg = opts?.topbarBg || (mode === "light" ? "#ffffff" : "#020617");
+  const topbarText = opts?.topbarText || (mode === "light" ? "#020617" : "#e5e7eb");
+  const sidebarBg = opts?.sidebarBg || (mode === "light" ? "#f3f4f6" : "#020617");
+  const sidebarText = opts?.sidebarText || (mode === "light" ? "#020617" : "#e5e7eb");
+
+  const hasSidebar = !!opts?.showSidebarToggle;
+
+  const userName = opts?.userName ? escapeHtml(opts.userName) : "";
+  const userAvatarUrl = opts?.userAvatarUrl || null;
+  const userInitial = userName ? escapeHtml(userName.charAt(0).toUpperCase()) : "A";
 
   const brandHtml = renderBrand({
     siteName,
@@ -86,25 +99,68 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     logoTextStyle: opts?.logoTextStyle
   });
 
-  const headerHtml = opts?.hideHeader
-    ? ""
-    : `
-    <header class="site-header">
-      <div class="site-header-left">
-        ${brandHtml}
+  const userBlock = userName
+    ? `
+      <div class="topbar-user">
+        ${
+          userAvatarUrl
+            ? `<img src="${userAvatarUrl}" alt="${userName}" class="topbar-avatar" />`
+            : `<div class="topbar-avatar-fallback">${userInitial}</div>`
+        }
+        <div class="topbar-user-meta">
+          <div class="topbar-user-name">${userName}</div>
+          <a href="/auth/logout" class="topbar-user-link">Sign out</a>
+        </div>
       </div>
-      <nav class="site-header-right">
-        <a href="/" class="btn-secondary btn">Home</a>
-        <a href="/admin" class="btn">Dashboard</a>
-      </nav>
+    `
+    : "";
+
+  const navRight = userName
+    ? `
+      <div class="topbar-right">
+        <div class="topbar-right-text">
+          <a href="/" class="btn-secondary btn">Home</a>
+          <a href="/admin" class="btn btn-primary">Dashboard</a>
+        </div>
+        ${userBlock}
+      </div>
+    `
+    : `
+      <div class="topbar-right">
+        <div class="topbar-right-text">
+          <a href="/" class="btn-secondary btn">Home</a>
+          <a href="/auth/login" class="btn btn-primary">Admin</a>
+        </div>
+      </div>
+    `;
+
+  const toggleButton = hasSidebar
+    ? `
+      <button class="topbar-toggle" type="button" aria-label="Toggle menu">
+        <span class="topbar-toggle-icon"></span>
+      </button>
+    `
+    : "";
+
+  const headerHtml = `
+    <header class="topbar">
+      <div class="topbar-left">
+        ${toggleButton}
+        <div class="topbar-brand">
+          ${brandHtml}
+        </div>
+      </div>
+      ${navRight}
     </header>
   `;
+
+  const bodyClass = hasSidebar ? ' class="has-sidebar"' : "";
 
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
@@ -123,7 +179,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     * {
       box-sizing: border-box;
     }
-    body {
+    body${bodyClass} {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--color-bg);
@@ -132,28 +188,31 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       display: flex;
       flex-direction: column;
     }
-    .site-header {
+    .topbar {
       width: 100%;
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--color-border);
+      background: var(--topbar-bg);
+      color: var(--topbar-text);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .site-header-left {
-      font-weight: 600;
-      font-size: 15px;
+    .topbar-left {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .topbar-right {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .topbar-brand {
       display:flex;
       align-items:center;
       gap:8px;
-    }
-    .site-header-right a {
-      margin-left: 8px;
-    }
-    main {
-      width: 100%;
-      padding: 20px 16px 40px;
-      flex: 1;
     }
 
     .brand-title {
@@ -205,20 +264,100 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 
     .btn {
       display: inline-block;
-      padding: 9px 16px;
+      padding: 8px 14px;
       border-radius: 999px;
       border: none;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .btn-primary {
       background: var(--color-primary);
       color: #020617;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 14px;
-      white-space: nowrap;
     }
     .btn-secondary {
       background: transparent;
-      color: var(--color-text);
+      color: var(--topbar-text);
       border: 1px solid var(--color-border);
+    }
+
+    .topbar-user {
+      display:flex;
+      align-items:center;
+      gap:7px;
+    }
+    .topbar-avatar {
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      object-fit:cover;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+    }
+    .topbar-avatar-fallback {
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:600;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+      color:var(--topbar-text);
+    }
+    .topbar-user-meta {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      font-size:11px;
+    }
+    .topbar-user-name {
+      font-weight:500;
+    }
+    .topbar-user-link {
+      color:var(--color-muted);
+      text-decoration:none;
+    }
+    .topbar-user-link:hover {
+      text-decoration:underline;
+    }
+
+    .topbar-toggle {
+      display:none;
+      border:none;
+      background:transparent;
+      color:var(--topbar-text);
+      cursor:pointer;
+      padding:4px;
+      border-radius:4px;
+    }
+    .topbar-toggle-icon {
+      width:18px;
+      height:2px;
+      background:var(--topbar-text);
+      position:relative;
+      display:block;
+    }
+    .topbar-toggle-icon::before,
+    .topbar-toggle-icon::after {
+      content:"";
+      position:absolute;
+      left:0;
+      width:18px;
+      height:2px;
+      background:var(--topbar-text);
+    }
+    .topbar-toggle-icon::before { top:-5px; }
+    .topbar-toggle-icon::after { top:5px; }
+
+    main {
+      width: 100%;
+      padding: 18px 16px 40px;
+      flex: 1;
     }
 
     .page {
@@ -336,9 +475,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       color:var(--color-muted);
     }
 
+    /* Admin shell */
     .app-shell {
       display: flex;
-      min-height: calc(100vh - 0px);
+      min-height: calc(100vh - 58px);
       width: 100%;
     }
     .app-sidebar {
@@ -375,107 +515,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       flex-direction: column;
       min-width: 0;
     }
-
-    .app-topbar {
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--color-border);
-      background: var(--topbar-bg);
-      color: var(--topbar-text);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .app-topbar-left {
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .app-topbar-brand {
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .app-topbar-page-title {
-      font-size:14px;
-      font-weight:500;
-    }
-    .app-topbar-right {
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .app-topbar-user {
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .app-topbar-avatar {
-      width:28px;
-      height:28px;
-      border-radius:999px;
-      object-fit:cover;
-      border:1px solid var(--color-border);
-      background:var(--color-card-bg);
-    }
-    .app-topbar-avatar-fallback {
-      width:28px;
-      height:28px;
-      border-radius:999px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:13px;
-      font-weight:600;
-      border:1px solid var(--color-border);
-      background:var(--color-card-bg);
-      color:var(--topbar-text);
-    }
-    .app-topbar-user-meta {
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      font-size:12px;
-    }
-    .app-topbar-user-name {
-      font-weight:500;
-    }
-    .app-topbar-user-link {
-      font-size:11px;
-      color:var(--color-muted);
-      text-decoration:none;
-    }
-    .app-topbar-user-link:hover {
-      text-decoration:underline;
-    }
-
-    .app-topbar-toggle {
-      display:none;
-      border:none;
-      background:transparent;
-      color:var(--topbar-text);
-      cursor:pointer;
-      padding:4px;
-      border-radius:4px;
-    }
-    .app-topbar-toggle-icon {
-      width:18px;
-      height:2px;
-      background:var(--topbar-text);
-      position:relative;
-      display:block;
-    }
-    .app-topbar-toggle-icon::before,
-    .app-topbar-toggle-icon::after {
-      content:"";
-      position:absolute;
-      left:0;
-      width:18px;
-      height:2px;
-      background:var(--topbar-text);
-    }
-    .app-topbar-toggle-icon::before { top:-5px; }
-    .app-topbar-toggle-icon::after { top:5px; }
-
     .app-main-content {
       padding: 18px 16px 28px;
       width: 100%;
@@ -492,13 +531,29 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       gap:10px;
     }
 
+    /* Responsive */
     @media (max-width: 768px) {
       main {
-        padding: 16px 10px 28px;
+        padding: 14px 10px 28px;
       }
       .page, .page-narrow, .app-main-content {
         max-width: 100%;
       }
+
+      /* Admin with sidebar (dashboard pages) */
+      body.has-sidebar .topbar-toggle {
+        display:block;
+      }
+      body.has-sidebar .topbar-brand {
+        display:none;
+      }
+      body.has-sidebar .topbar-right-text {
+        display:none;
+      }
+      body.has-sidebar .topbar-user-meta {
+        display:none;
+      }
+
       .app-shell {
         flex-direction: column;
       }
@@ -515,19 +570,18 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       body.sidebar-open .app-sidebar {
         display:block;
       }
-      .app-topbar-toggle {
-        display:block;
-      }
-      .app-topbar-brand,
-      .app-topbar-page-title,
-      .app-topbar-user-meta {
-        display:none;
-      }
     }
 
     @media (min-width: 769px) {
-      .app-topbar-toggle {
+      .topbar-toggle {
         display:none;
+      }
+      .app-sidebar {
+        display:block;
+        position:relative;
+        top:auto;
+        left:auto;
+        bottom:auto;
       }
     }
   </style>
@@ -535,6 +589,19 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 <body>
   ${headerHtml}
   <main>${body}</main>
+  <script>
+    (function() {
+      var btn = document.querySelector(".topbar-toggle");
+      if (!btn) return;
+      btn.addEventListener("click", function() {
+        if (document.body.classList.contains("sidebar-open")) {
+          document.body.classList.remove("sidebar-open");
+        } else {
+          document.body.classList.add("sidebar-open");
+        }
+      });
+    })();
+  </script>
 </body>
 </html>`;
 }
