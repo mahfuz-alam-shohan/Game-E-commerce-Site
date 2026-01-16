@@ -17,8 +17,10 @@ export interface LayoutOptions {
   sidebarBg?: string;
   sidebarText?: string;
 
-  // For admin pages with sidebar
+  // For pages that actually have a sidebar (admin pages, or landing if you want)
   showSidebarToggle?: boolean;
+
+  // Logged-in user info (admin)
   userName?: string;
   userAvatarUrl?: string | null;
 }
@@ -115,6 +117,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
+  // PC / big screens: show buttons in header
   const navRight = userName
     ? `
       <div class="topbar-right">
@@ -188,6 +191,8 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       display: flex;
       flex-direction: column;
     }
+
+    /* Top bar */
     .topbar {
       width: 100%;
       padding: 10px 16px;
@@ -207,6 +212,11 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       display:flex;
       align-items:center;
       gap:12px;
+    }
+    .topbar-right-text {
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
 
     .topbar-brand {
@@ -488,6 +498,51 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       background: var(--sidebar-bg);
       color: var(--sidebar-text);
     }
+
+    /* Sidebar user header (for phone) */
+    .app-sidebar-user {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .app-sidebar-user-avatar {
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      object-fit:cover;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+    }
+    .app-sidebar-user-avatar-fallback {
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:14px;
+      font-weight:600;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+      color:var(--sidebar-text);
+    }
+    .app-sidebar-user-meta {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      font-size:12px;
+    }
+    .app-sidebar-user-name {
+      font-weight:500;
+    }
+    .app-sidebar-user-role {
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--color-muted);
+    }
+
     .app-sidebar-title {
       margin: 0 0 14px 0;
       font-size: 12px;
@@ -540,18 +595,15 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         max-width: 100%;
       }
 
-      /* Admin with sidebar (dashboard pages) */
+      /* Phone behavior for pages with sidebar */
       body.has-sidebar .topbar-toggle {
         display:block;
       }
-      body.has-sidebar .topbar-brand {
-        display:none;
-      }
       body.has-sidebar .topbar-right-text {
-        display:none;
+        display:none;   /* hide Home/Dashboard buttons on phone */
       }
-      body.has-sidebar .topbar-user-meta {
-        display:none;
+      body.has-sidebar .topbar-user {
+        display:none;   /* hide avatar + name from title bar on phone */
       }
 
       .app-shell {
@@ -570,6 +622,11 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       body.sidebar-open .app-sidebar {
         display:block;
       }
+
+      /* On phone we WANT the sidebar user header visible */
+      .app-sidebar-user {
+        display:flex;
+      }
     }
 
     @media (min-width: 769px) {
@@ -582,6 +639,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         top:auto;
         left:auto;
         bottom:auto;
+      }
+      /* On PC we HIDE the user block in sidebar, keep it in title bar */
+      .app-sidebar-user {
+        display:none;
       }
     }
   </style>
