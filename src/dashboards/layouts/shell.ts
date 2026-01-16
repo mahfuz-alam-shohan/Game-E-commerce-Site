@@ -4,6 +4,7 @@ import { layout, type LayoutOptions } from "../../lib/html";
 interface DashboardUser {
   name?: string;
   avatar_url?: string | null;
+  role?: string;
 }
 
 export function renderDashboardShell(opts: {
@@ -16,16 +17,30 @@ export function renderDashboardShell(opts: {
 }) {
   const displayName = (opts.user?.name || "Admin").toString();
   const avatarUrl = opts.user?.avatar_url || null;
+  const sidebarInitial = displayName.charAt(0).toUpperCase();
+  const roleLabel = (opts.userRole || "admin").toUpperCase();
+
+  const sidebarUserBlock = `
+    <div class="app-sidebar-user">
+      ${
+        avatarUrl
+          ? `<img src="${avatarUrl}" alt="${displayName}" class="app-sidebar-user-avatar" />`
+          : `<div class="app-sidebar-user-avatar-fallback">${sidebarInitial}</div>`
+      }
+      <div class="app-sidebar-user-meta">
+        <div class="app-sidebar-user-name">${displayName}</div>
+        <div class="app-sidebar-user-role">${roleLabel}</div>
+      </div>
+    </div>
+  `;
 
   const sidebar = `
     <aside class="app-sidebar">
-      <h3 class="app-sidebar-title">${opts.userRole.toUpperCase()}</h3>
+      ${sidebarUserBlock}
+      <h3 class="app-sidebar-title">${roleLabel}</h3>
       <nav class="app-sidebar-nav">
         ${opts.menu
-          .map(
-            item =>
-              `<a href="${item.href}">${item.label}</a>`
-          )
+          .map(item => `<a href="${item.href}">${item.label}</a>`)
           .join("")}
       </nav>
     </aside>
