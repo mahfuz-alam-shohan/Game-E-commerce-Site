@@ -1,6 +1,23 @@
 // src/lib/html.ts
 
-export function layout(title: string, body: string): string {
+export interface LayoutOptions {
+  siteName?: string;
+  themeMode?: "dark" | "light";
+  themePrimary?: string;
+}
+
+export function layout(title: string, body: string, opts?: LayoutOptions): string {
+  const siteName = opts?.siteName || "GameStore";
+  const mode: "dark" | "light" =
+    opts?.themeMode === "light" ? "light" : "dark";
+  const primary = opts?.themePrimary || "#22c55e";
+
+  const bg = mode === "light" ? "#f9fafb" : "#020617";
+  const text = mode === "light" ? "#020617" : "#e5e7eb";
+  const border = mode === "light" ? "#e5e7eb" : "#111827";
+  const cardBg = mode === "light" ? "#ffffff" : "#020617";
+  const muted = mode === "light" ? "#6b7280" : "#9ca3af";
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -9,7 +26,13 @@ export function layout(title: string, body: string): string {
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
-      color-scheme: dark;
+      color-scheme: ${mode === "light" ? "light" : "dark"};
+      --color-bg: ${bg};
+      --color-text: ${text};
+      --color-border: ${border};
+      --color-card-bg: ${cardBg};
+      --color-muted: ${muted};
+      --color-primary: ${primary};
     }
     * {
       box-sizing: border-box;
@@ -17,8 +40,8 @@ export function layout(title: string, body: string): string {
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #020617;
-      color: #e5e7eb;
+      background: var(--color-bg);
+      color: var(--color-text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -26,7 +49,7 @@ export function layout(title: string, body: string): string {
     header {
       width: 100%;
       padding: 10px 18px;
-      border-bottom: 1px solid #111827;
+      border-bottom: 1px solid var(--color-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -44,13 +67,12 @@ export function layout(title: string, body: string): string {
       flex: 1;
     }
 
-    /* Basic buttons */
     .btn {
       display: inline-block;
       padding: 9px 16px;
       border-radius: 999px;
       border: none;
-      background: #22c55e;
+      background: var(--color-primary);
       color: #020617;
       font-weight: 600;
       text-decoration: none;
@@ -59,11 +81,10 @@ export function layout(title: string, body: string): string {
     }
     .btn-secondary {
       background: transparent;
-      color: #e5e7eb;
-      border: 1px solid #4b5563;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
     }
 
-    /* Page layout helpers */
     .page {
       margin: 0 auto;
       max-width: 1040px;
@@ -82,14 +103,13 @@ export function layout(title: string, body: string): string {
     .page-subtitle {
       margin: 0 0 20px 0;
       font-size: 13px;
-      color: #9ca3af;
+      color: var(--color-muted);
     }
 
-    /* Cards */
     .card {
-      background: #020617;
+      background: var(--color-card-bg);
       border-radius: 8px;
-      border: 1px solid #111827;
+      border: 1px solid var(--color-border);
       padding: 18px 18px 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
@@ -101,10 +121,9 @@ export function layout(title: string, body: string): string {
     .card-subtitle {
       margin: 0 0 14px 0;
       font-size: 12px;
-      color: #9ca3af;
+      color: var(--color-muted);
     }
 
-    /* Forms */
     form {
       display: flex;
       flex-direction: column;
@@ -121,26 +140,26 @@ export function layout(title: string, body: string): string {
     label {
       font-size: 13px;
       font-weight: 500;
-      color: #d1d5db;
+      color: var(--color-text);
     }
     input {
       padding: 7px 9px;
       border-radius: 6px;
-      border: 1px solid #4b5563;
-      background: #020617;
-      color: #f9fafb;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+      color: var(--color-text);
       font-size: 14px;
       width: 100%;
     }
     input::placeholder {
-      color: #6b7280;
+      color: var(--color-muted);
     }
     small {
       font-size: 11px;
-      color: #9ca3af;
+      color: var(--color-muted);
     }
     .muted {
-      color: #9ca3af;
+      color: var(--color-muted);
       font-size: 13px;
     }
     .stack-sm {
@@ -160,7 +179,6 @@ export function layout(title: string, body: string): string {
       flex-wrap: wrap;
     }
 
-    /* Dashboard layout */
     .app-shell {
       display: flex;
       min-height: calc(100vh - 56px);
@@ -169,13 +187,13 @@ export function layout(title: string, body: string): string {
     .app-sidebar {
       width: 240px;
       padding: 14px 12px;
-      border-right: 1px solid #111827;
+      border-right: 1px solid var(--color-border);
     }
     .app-sidebar-title {
       margin: 0 0 14px 0;
       font-size: 12px;
       letter-spacing: 0.08em;
-      color: #9ca3af;
+      color: var(--color-muted);
     }
     .app-sidebar-nav {
       display: flex;
@@ -184,13 +202,13 @@ export function layout(title: string, body: string): string {
       font-size: 14px;
     }
     .app-sidebar-nav a {
-      color: #e5e7eb;
+      color: var(--color-text);
       text-decoration: none;
       padding: 6px 8px;
       border-radius: 6px;
     }
     .app-sidebar-nav a:hover {
-      background: #111827;
+      background: rgba(15, 23, 42, 0.9);
     }
     .app-main {
       flex: 1;
@@ -200,7 +218,7 @@ export function layout(title: string, body: string): string {
     }
     .app-topbar {
       padding: 10px 16px;
-      border-bottom: 1px solid #111827;
+      border-bottom: 1px solid var(--color-border);
     }
     .app-topbar h2 {
       margin: 0;
@@ -229,7 +247,7 @@ export function layout(title: string, body: string): string {
         width: 100%;
         padding: 10px 10px;
         border-right: none;
-        border-bottom: 1px solid #111827;
+        border-bottom: 1px solid var(--color-border);
         overflow-x: auto;
         white-space: nowrap;
       }
@@ -245,7 +263,7 @@ export function layout(title: string, body: string): string {
 </head>
 <body>
   <header>
-    <div>GameStore</div>
+    <div>${siteName}</div>
     <nav>
       <a href="/" class="btn-secondary btn">Home</a>
     </nav>

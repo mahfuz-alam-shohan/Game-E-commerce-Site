@@ -1,11 +1,12 @@
 // src/dashboards/layouts/shell.ts
-import { layout } from "../../lib/html";
+import { layout, type LayoutOptions } from "../../lib/html";
 
 export function renderDashboardShell(opts: {
   userRole: string;
   title: string;
   menu: { label: string; href: string; icon?: string }[];
   content: string;
+  layoutOptions: LayoutOptions;
 }) {
   const sidebar = `
     <aside class="app-sidebar">
@@ -36,10 +37,12 @@ export function renderDashboardShell(opts: {
     </div>
   `;
 
-  return layout(opts.title, `
+  const shell = `
     <div class="app-shell">
       ${sidebar}
       ${contentArea}
     </div>
-  `);
+  `;
+
+  return layout(opts.title, shell, opts.layoutOptions);
 }

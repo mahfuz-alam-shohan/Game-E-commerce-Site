@@ -5,10 +5,13 @@ import { layout } from "../lib/html";
 import { findUserByEmail, createSession, deleteSession } from "../services/userService";
 import { verifyPassword } from "../lib/security";
 import { setSessionCookie, clearSessionCookie } from "../lib/auth";
+import { getSiteSettings } from "../services/setupService";
 
 export const authRouter = new Hono<{ Bindings: Env }>();
 
 authRouter.get("/login", async c => {
+  const settings = await getSiteSettings(c.env);
+
   const body = `
     <div class="page-narrow">
       <h1 class="page-title">Sign in</h1>
@@ -38,10 +41,17 @@ authRouter.get("/login", async c => {
     </div>
   `;
 
-  return c.html(layout("Admin login", body));
+  return c.html(
+    layout("Admin login", body, {
+      siteName: settings.siteName,
+      themeMode: settings.themeMode,
+      themePrimary: settings.themePrimary
+    })
+  );
 });
 
 authRouter.post("/login", async c => {
+  const settings = await getSiteSettings(c.env);
   const formData = await c.req.formData();
   const email = (formData.get("email") || "").toString().toLowerCase().trim();
   const password = (formData.get("password") || "").toString();
@@ -61,7 +71,14 @@ authRouter.post("/login", async c => {
         </div>
       </div>
     `;
-    return c.html(layout("Admin login", body), 400);
+    return c.html(
+      layout("Admin login", body, {
+        siteName: settings.siteName,
+        themeMode: settings.themeMode,
+        themePrimary: settings.themePrimary
+      }),
+      400
+    );
   }
 
   const user = await findUserByEmail(c.env, email);
@@ -81,7 +98,14 @@ authRouter.post("/login", async c => {
         </div>
       </div>
     `;
-    return c.html(layout("Admin login", body), 401);
+    return c.html(
+      layout("Admin login", body, {
+        siteName: settings.siteName,
+        themeMode: settings.themeMode,
+        themePrimary: settings.themePrimary
+      }),
+      401
+    );
   }
 
   const ok = await verifyPassword(password, user.password_hash);
@@ -100,7 +124,14 @@ authRouter.post("/login", async c => {
         </div>
       </div>
     `;
-    return c.html(layout("Admin login", body), 401);
+    return c.html(
+      layout("Admin login", body, {
+        siteName: settings.siteName,
+        themeMode: settings.themeMode,
+        themePrimary: settings.themePrimary
+      }),
+      401
+    );
   }
 
   const sessionId = await createSession(c.env, user.id);
@@ -110,6 +141,7 @@ authRouter.post("/login", async c => {
 });
 
 authRouter.get("/logout", async c => {
+  const settings = await getSiteSettings(c.env);
   const cookieHeader = c.req.header("Cookie") || c.req.header("cookie") || null;
   let sessionId: string | undefined;
   if (cookieHeader) {
@@ -130,5 +162,25 @@ authRouter.get("/logout", async c => {
   }
   clearSessionCookie(c);
 
-  return c.redirect("/auth/login");
+  // Simple logout confirmation
+  const body = `
+    <div class="page-narrow">
+      <h1 class="page-title">Signed out</h1>
+      <p class="page-subtitle">
+        You have been signed out of the admin dashboard.
+      </p>
+      <div class="card">
+        <p class="card-subtitle">You can sign in again at any time.</p>
+        <a href="/auth/login" class="btn">Go to login</a>
+      </div>
+    </div>
+  `;
+
+  return c.html(
+    layout("Signed out", body, {
+      siteName: settings.siteName,
+      themeMode: settings.themeMode,
+      themePrimary: settings.themePrimary
+    })
+  );
 });

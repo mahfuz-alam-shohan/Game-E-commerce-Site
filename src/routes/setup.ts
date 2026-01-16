@@ -5,7 +5,8 @@ import { layout } from "../lib/html";
 import {
   hasAnyAdmin,
   saveSiteSettings,
-  createFirstAdmin
+  createFirstAdmin,
+  getSiteSettings
 } from "../services/setupService";
 
 export const setupRouter = new Hono<{ Bindings: Env }>();
@@ -14,6 +15,8 @@ export const setupRouter = new Hono<{ Bindings: Env }>();
 setupRouter.get("/site", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   if (adminExists) return c.redirect("/admin");
+
+  const settings = await getSiteSettings(c.env);
 
   const body = `
     <div class="page-narrow">
@@ -52,7 +55,13 @@ setupRouter.get("/site", async c => {
     </div>
   `;
 
-  return c.html(layout("Setup – Site", body));
+  return c.html(
+    layout("Setup – Site", body, {
+      siteName: settings.siteName,
+      themeMode: settings.themeMode,
+      themePrimary: settings.themePrimary
+    })
+  );
 });
 
 // Step 1 – Site config (POST)
@@ -60,6 +69,7 @@ setupRouter.post("/site", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   if (adminExists) return c.redirect("/admin");
 
+  const settings = await getSiteSettings(c.env);
   const formData = await c.req.formData();
   const siteName = (formData.get("site_name") || "").toString().trim();
   const siteMotto = (formData.get("site_motto") || "").toString().trim();
@@ -76,7 +86,14 @@ setupRouter.post("/site", async c => {
         </div>
       </div>
     `;
-    return c.html(layout("Setup – Site", body), 400);
+    return c.html(
+      layout("Setup – Site", body, {
+        siteName: settings.siteName,
+        themeMode: settings.themeMode,
+        themePrimary: settings.themePrimary
+      }),
+      400
+    );
   }
 
   await saveSiteSettings(c.env, {
@@ -92,6 +109,8 @@ setupRouter.post("/site", async c => {
 setupRouter.get("/admin", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   if (adminExists) return c.redirect("/admin");
+
+  const settings = await getSiteSettings(c.env);
 
   const body = `
     <div class="page-narrow">
@@ -131,7 +150,13 @@ setupRouter.get("/admin", async c => {
     </div>
   `;
 
-  return c.html(layout("Setup – Admin", body));
+  return c.html(
+    layout("Setup – Admin", body, {
+      siteName: settings.siteName,
+      themeMode: settings.themeMode,
+      themePrimary: settings.themePrimary
+    })
+  );
 });
 
 // Step 2 – Admin creation (POST)
@@ -139,6 +164,7 @@ setupRouter.post("/admin", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   if (adminExists) return c.redirect("/admin");
 
+  const settings = await getSiteSettings(c.env);
   const formData = await c.req.formData();
   const name = (formData.get("name") || "").toString().trim();
   const email = (formData.get("email") || "").toString().toLowerCase().trim();
@@ -156,7 +182,14 @@ setupRouter.post("/admin", async c => {
         </div>
       </div>
     `;
-    return c.html(layout("Setup – Admin", body), 400);
+    return c.html(
+      layout("Setup – Admin", body, {
+        siteName: settings.siteName,
+        themeMode: settings.themeMode,
+        themePrimary: settings.themePrimary
+      }),
+      400
+    );
   }
 
   try {
@@ -174,7 +207,14 @@ setupRouter.post("/admin", async c => {
         </div>
       </div>
     `;
-    return c.html(layout("Setup – Admin", body), 400);
+    return c.html(
+      layout("Setup – Admin", body, {
+        siteName: settings.siteName,
+        themeMode: settings.themeMode,
+        themePrimary: settings.themePrimary
+      }),
+      400
+    );
   }
 
   return c.redirect("/admin");
