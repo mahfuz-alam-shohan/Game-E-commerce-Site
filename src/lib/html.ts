@@ -182,7 +182,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     * {
       box-sizing: border-box;
     }
-    body${bodyClass} {
+    body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--color-bg);
@@ -647,7 +647,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     }
   </style>
 </head>
-<body>
+<body${bodyClass}>
   ${headerHtml}
   <main>${body}</main>
   <script>
