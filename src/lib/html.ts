@@ -16,6 +16,7 @@ export interface LayoutOptions {
   topbarText?: string;
   sidebarBg?: string;
   sidebarText?: string;
+  hideHeader?: boolean; // true for admin shell pages (no global header)
 }
 
 function renderBrand(opts: LayoutOptions): string {
@@ -85,6 +86,20 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     logoTextStyle: opts?.logoTextStyle
   });
 
+  const headerHtml = opts?.hideHeader
+    ? ""
+    : `
+    <header class="site-header">
+      <div class="site-header-left">
+        ${brandHtml}
+      </div>
+      <nav class="site-header-right">
+        <a href="/" class="btn-secondary btn">Home</a>
+        <a href="/admin" class="btn">Dashboard</a>
+      </nav>
+    </header>
+  `;
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -117,7 +132,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       display: flex;
       flex-direction: column;
     }
-    header {
+    .site-header {
       width: 100%;
       padding: 10px 18px;
       border-bottom: 1px solid var(--color-border);
@@ -125,14 +140,14 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       align-items: center;
       justify-content: space-between;
     }
-    header > div {
+    .site-header-left {
       font-weight: 600;
       font-size: 15px;
       display:flex;
       align-items:center;
       gap:8px;
     }
-    header nav a {
+    .site-header-right a {
       margin-left: 8px;
     }
     main {
@@ -323,7 +338,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 
     .app-shell {
       display: flex;
-      min-height: calc(100vh - 56px);
+      min-height: calc(100vh - 0px);
       width: 100%;
     }
     .app-sidebar {
@@ -360,6 +375,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       flex-direction: column;
       min-width: 0;
     }
+
     .app-topbar {
       padding: 10px 16px;
       border-bottom: 1px solid var(--color-border);
@@ -369,9 +385,19 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       align-items:center;
       justify-content:space-between;
     }
-    .app-topbar-left h2 {
-      margin: 0;
-      font-size: 16px;
+    .app-topbar-left {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .app-topbar-brand {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .app-topbar-page-title {
+      font-size:14px;
+      font-weight:500;
     }
     .app-topbar-right {
       display:flex;
@@ -402,6 +428,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       font-weight:600;
       border:1px solid var(--color-border);
       background:var(--color-card-bg);
+      color:var(--topbar-text);
     }
     .app-topbar-user-meta {
       display:flex;
@@ -421,6 +448,34 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       text-decoration:underline;
     }
 
+    .app-topbar-toggle {
+      display:none;
+      border:none;
+      background:transparent;
+      color:var(--topbar-text);
+      cursor:pointer;
+      padding:4px;
+      border-radius:4px;
+    }
+    .app-topbar-toggle-icon {
+      width:18px;
+      height:2px;
+      background:var(--topbar-text);
+      position:relative;
+      display:block;
+    }
+    .app-topbar-toggle-icon::before,
+    .app-topbar-toggle-icon::after {
+      content:"";
+      position:absolute;
+      left:0;
+      width:18px;
+      height:2px;
+      background:var(--topbar-text);
+    }
+    .app-topbar-toggle-icon::before { top:-5px; }
+    .app-topbar-toggle-icon::after { top:5px; }
+
     .app-main-content {
       padding: 18px 16px 28px;
       width: 100%;
@@ -438,9 +493,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     }
 
     @media (max-width: 768px) {
-      header {
-        padding: 10px 14px;
-      }
       main {
         padding: 16px 10px 28px;
       }
@@ -451,31 +503,37 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         flex-direction: column;
       }
       .app-sidebar {
-        width: 100%;
-        padding: 10px 10px;
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
-        overflow-x: auto;
-        white-space: nowrap;
+        display:none;
+        position:fixed;
+        top:48px;
+        left:0;
+        bottom:0;
+        z-index:40;
+        width:240px;
+        overflow:auto;
       }
-      .app-sidebar-nav {
-        flex-direction: row;
-        gap: 6px;
+      body.sidebar-open .app-sidebar {
+        display:block;
       }
-      .app-main-content {
-        padding: 16px 10px 24px;
+      .app-topbar-toggle {
+        display:block;
+      }
+      .app-topbar-brand,
+      .app-topbar-page-title,
+      .app-topbar-user-meta {
+        display:none;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .app-topbar-toggle {
+        display:none;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div>${brandHtml}</div>
-    <nav>
-      <a href="/" class="btn-secondary btn">Home</a>
-      <a href="/admin" class="btn">Dashboard</a>
-    </nav>
-  </header>
+  ${headerHtml}
   <main>${body}</main>
 </body>
 </html>`;

@@ -147,7 +147,6 @@ adminDashboardRouter.post("/settings/identity", async c => {
     return c.html(html, 400);
   }
 
-  // Resolve logo mode
   let chosenLogoMode: "none" | "text" | "url" | "r2";
   if (logoModeRaw === "text" || logoModeRaw === "url" || logoModeRaw === "r2") {
     chosenLogoMode = logoModeRaw as any;
@@ -155,7 +154,7 @@ adminDashboardRouter.post("/settings/identity", async c => {
     chosenLogoMode = "none";
   }
 
-  // If a file is provided, upload to R2 and switch to r2 mode
+  // If file uploaded, push to R2 and force mode=r2
   if (file instanceof File && file.size > 0) {
     const maxSize = 512 * 1024;
     if (file.size > maxSize) {
@@ -163,7 +162,10 @@ adminDashboardRouter.post("/settings/identity", async c => {
         userRole: "admin",
         title: "Site identity",
         menu: adminMenu,
-        content: adminSettingsIdentityView(settingsBefore, "File too large. Use a logo under ~512 KB."),
+        content: adminSettingsIdentityView(
+          settingsBefore,
+          "File too large. Use a logo under ~512 KB."
+        ),
         layoutOptions: {
           siteName: settingsBefore.siteName,
           themeMode: settingsBefore.themeMode,
