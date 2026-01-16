@@ -141,7 +141,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
-  // 🔁 Brand on left, buttons + user + toggle on right
+  // Brand on left, buttons + user + toggle on right
   const headerHtml = `
     <header class="topbar">
       <div class="topbar-left">
@@ -181,7 +181,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     * {
       box-sizing: border-box;
     }
-    body {
+    body${bodyClass} {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--color-bg);
@@ -201,6 +201,8 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      z-index: 20;
     }
     .topbar-left {
       display:flex;
@@ -342,7 +344,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       color:var(--topbar-text);
       cursor:pointer;
       padding:4px;
-      border-radius:4px;
+      border-radius:6px;
     }
     .topbar-toggle-icon {
       width:18px;
@@ -596,7 +598,13 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 
       /* Phone behavior for pages with sidebar */
       body.has-sidebar .topbar-toggle {
-        display:block;          /* show menu icon on right */
+        display:block;
+        position:fixed;
+        right:12px;
+        top:10px;
+        z-index:60;
+        background:var(--topbar-bg);
+        border:1px solid var(--color-border);
       }
       body.has-sidebar .topbar-right-text {
         display:none;           /* hide Home/Dashboard buttons on phone */
@@ -611,10 +619,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       .app-sidebar {
         display:none;
         position:fixed;
-        top:48px;
+        top:0;                 /* cover title bar too */
         left:0;
         bottom:0;
-        z-index:40;
+        z-index:50;
         width:240px;
         overflow:auto;
       }
@@ -646,7 +654,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     }
   </style>
 </head>
-<body${bodyClass}>
+<body>
   ${headerHtml}
   <main>${body}</main>
   <script>
