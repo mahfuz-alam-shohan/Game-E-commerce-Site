@@ -46,10 +46,10 @@ export function renderDashboardShell(opts: {
     </aside>
   `;
 
+  // ❗ No extra <h1> here – each view is responsible for its own heading
   const contentArea = `
     <div class="app-main">
       <div class="app-main-content">
-        <h1 class="page-title" style="margin-bottom:8px;">${opts.title}</h1>
         ${opts.content}
       </div>
     </div>
