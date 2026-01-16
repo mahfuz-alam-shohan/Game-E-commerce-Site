@@ -17,3 +17,16 @@ export async function hashPassword(plain: string): Promise<string> {
   // format: salt$hash
   return `${saltHex}$${hashHex}`;
 }
+
+export async function verifyPassword(plain: string, stored: string): Promise<boolean> {
+  const parts = stored.split("$");
+  if (parts.length !== 2) return false;
+  const [saltHex, storedHash] = parts;
+  if (!saltHex || !storedHash) return false;
+
+  const data = encoder.encode(`${saltHex}:${plain}`);
+  const hashBuf = await crypto.subtle.digest("SHA-256", data);
+  const hashHex = toHex(new Uint8Array(hashBuf));
+
+  return hashHex === storedHash;
+}

@@ -25,7 +25,7 @@ export function layout(title: string, body: string): string {
     }
     header {
       width: 100%;
-      padding: 12px 20px;
+      padding: 10px 18px;
       border-bottom: 1px solid #111827;
       display: flex;
       align-items: center;
@@ -43,9 +43,11 @@ export function layout(title: string, body: string): string {
       padding: 20px 16px 40px;
       flex: 1;
     }
+
+    /* Basic buttons */
     .btn {
       display: inline-block;
-      padding: 10px 18px;
+      padding: 9px 16px;
       border-radius: 999px;
       border: none;
       background: #22c55e;
@@ -60,12 +62,54 @@ export function layout(title: string, body: string): string {
       color: #e5e7eb;
       border: 1px solid #4b5563;
     }
+
+    /* Page layout helpers */
+    .page {
+      margin: 0 auto;
+      max-width: 1040px;
+      width: 100%;
+    }
+    .page-narrow {
+      margin: 0 auto;
+      max-width: 540px;
+      width: 100%;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+    .page-subtitle {
+      margin: 0 0 20px 0;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    /* Cards */
+    .card {
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid #111827;
+      padding: 18px 18px 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .card-title {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .card-subtitle {
+      margin: 0 0 14px 0;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    /* Forms */
     form {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-top: 16px;
-      max-width: 480px;
+      margin-top: 4px;
       width: 100%;
     }
     .field {
@@ -80,8 +124,8 @@ export function layout(title: string, body: string): string {
       color: #d1d5db;
     }
     input {
-      padding: 8px 10px;
-      border-radius: 8px;
+      padding: 7px 9px;
+      border-radius: 6px;
       border: 1px solid #4b5563;
       background: #020617;
       color: #f9fafb;
@@ -99,8 +143,24 @@ export function layout(title: string, body: string): string {
       color: #9ca3af;
       font-size: 13px;
     }
+    .stack-sm {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stack-md {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .form-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-    /* Dashboard layout classes (shared shell) */
+    /* Dashboard layout */
     .app-shell {
       display: flex;
       min-height: calc(100vh - 56px);
@@ -108,19 +168,19 @@ export function layout(title: string, body: string): string {
     }
     .app-sidebar {
       width: 240px;
-      padding: 16px 14px;
+      padding: 14px 12px;
       border-right: 1px solid #111827;
     }
     .app-sidebar-title {
-      margin: 0 0 16px 0;
-      font-size: 13px;
-      letter-spacing: 0.06em;
+      margin: 0 0 14px 0;
+      font-size: 12px;
+      letter-spacing: 0.08em;
       color: #9ca3af;
     }
     .app-sidebar-nav {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       font-size: 14px;
     }
     .app-sidebar-nav a {
@@ -139,7 +199,7 @@ export function layout(title: string, body: string): string {
       min-width: 0;
     }
     .app-topbar {
-      padding: 12px 18px;
+      padding: 10px 16px;
       border-bottom: 1px solid #111827;
     }
     .app-topbar h2 {
@@ -147,18 +207,20 @@ export function layout(title: string, body: string): string {
       font-size: 16px;
     }
     .app-main-content {
-      padding: 20px 18px 32px;
+      padding: 18px 16px 28px;
       width: 100%;
       max-width: 1200px;
     }
 
-    /* Mobile responsiveness */
     @media (max-width: 768px) {
       header {
         padding: 10px 14px;
       }
       main {
         padding: 16px 10px 28px;
+      }
+      .page, .page-narrow, .app-main-content {
+        max-width: 100%;
       }
       .app-shell {
         flex-direction: column;
@@ -176,8 +238,7 @@ export function layout(title: string, body: string): string {
         gap: 6px;
       }
       .app-main-content {
-        padding: 16px 10px 28px;
-        max-width: 100%;
+        padding: 16px 10px 24px;
       }
     }
   </style>

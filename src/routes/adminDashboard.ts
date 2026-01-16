@@ -4,18 +4,17 @@ import type { Env } from "../types";
 import { renderDashboardShell } from "../dashboards/layouts/shell";
 import { adminMenu } from "../dashboards/admin/menu";
 import { adminHomeView } from "../dashboards/admin/home";
-import { hasAnyAdmin } from "../services/setupService";
+import { requireAdmin } from "../lib/auth";
 
-export const adminDashboardRouter = new Hono<{ Bindings: Env }>();
+export const adminDashboardRouter = new Hono<{ Bindings: Env; Variables: { user?: any } }>();
+
+// Require admin for all /admin routes
+adminDashboardRouter.use("*", requireAdmin);
 
 adminDashboardRouter.get("/", async c => {
-  const adminExists = await hasAnyAdmin(c.env);
-  if (!adminExists) return c.redirect("/setup/site");
-
-  // TODO later: validate logged-in user & role
   const html = renderDashboardShell({
     userRole: "admin",
-    title: "Admin Dashboard",
+    title: "Admin dashboard",
     menu: adminMenu,
     content: adminHomeView()
   });

@@ -9,15 +9,24 @@ export const publicRouter = new Hono<{ Bindings: Env }>();
 publicRouter.get("/", async c => {
   const adminExists = await hasAnyAdmin(c.env);
 
+  const cta = adminExists
+    ? `<a href="/admin" class="btn">Open admin dashboard</a>`
+    : `<a href="/setup/site" class="btn">Start initial setup</a>`;
+
   const body = `
-    <h1>Welcome to GameStore</h1>
-    <p class="muted">Public landing page placeholder. This will be your marketing page later.</p>
-    <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
-      ${
-        adminExists
-          ? `<a href="/admin" class="btn">Go to Admin Dashboard</a>`
-          : `<a href="/setup/site" class="btn">Start Initial Setup</a>`
-      }
+    <div class="page">
+      <div class="stack-md">
+        <section>
+          <h1 class="page-title">NutterTools GameStore</h1>
+          <p class="page-subtitle">
+            Future home of your gaming optimizers, skins, passes and more.
+          </p>
+          <div class="form-actions">
+            ${cta}
+            <span class="muted">Public storefront will be designed after setup is complete.</span>
+          </div>
+        </section>
+      </div>
     </div>
   `;
 
