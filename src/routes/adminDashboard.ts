@@ -7,8 +7,7 @@ import { adminHomeView } from "../dashboards/admin/home";
 import {
   adminSettingsIndexView,
   adminSettingsIdentityView,
-  adminSettingsThemeView,
-  adminSettingsErrorView
+  adminSettingsThemeView
 } from "../dashboards/admin/settings";
 import { requireAdmin } from "../lib/auth";
 import {
@@ -110,7 +109,7 @@ adminDashboardRouter.get("/settings/identity", async c => {
   return c.html(html);
 });
 
-// Site identity (POST) – includes optional R2 upload
+// Site identity (POST, including optional R2 upload)
 adminDashboardRouter.post("/settings/identity", async c => {
   const settingsBefore = await getSiteSettings(c.env);
   const formData = await c.req.formData();
@@ -154,7 +153,7 @@ adminDashboardRouter.post("/settings/identity", async c => {
     chosenLogoMode = "none";
   }
 
-  // If file uploaded, push to R2 and force mode=r2
+  // file upload -> R2
   if (file instanceof File && file.size > 0) {
     const maxSize = 512 * 1024;
     if (file.size > maxSize) {
@@ -215,7 +214,10 @@ adminDashboardRouter.post("/settings/identity", async c => {
       userRole: "admin",
       title: "Site identity",
       menu: adminMenu,
-      content: adminSettingsIdentityView(settingsBefore, "Failed to save identity."),
+      content: adminSettingsIdentityView(
+        settingsBefore,
+        "Failed to save identity."
+      ),
       layoutOptions: {
         siteName: settingsBefore.siteName,
         themeMode: settingsBefore.themeMode,
@@ -279,9 +281,7 @@ adminDashboardRouter.post("/settings/theme", async c => {
   const sidebarText = (formData.get("sidebar_text") || "").toString().trim() || settingsBefore.sidebarText;
 
   try {
-    const themeMode =
-      themeModeRaw === "light" ? "light" : "dark";
-
+    const themeMode = themeModeRaw === "light" ? "light" : "dark";
     await updateThemeSettings(c.env, {
       themeMode,
       themePrimary: themePrimary || settingsBefore.themePrimary,
