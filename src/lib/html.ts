@@ -117,9 +117,9 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
-  // 🔹 Header right side content:
-  // - When logged IN: only avatar + name (no Home/Dashboard buttons)
-  // - When logged OUT: keep Home/Admin buttons
+  // PC:
+  // - when logged IN: only avatar + name (no Home/Dashboard buttons)
+  // - when logged OUT: Home + Admin buttons
   const rightInner = userName
     ? `
         ${userBlock}
@@ -139,7 +139,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
-  // 🔹 Brand wrapped in link → click logo/site name to go home
   const headerHtml = `
     <header class="topbar">
       <div class="topbar-left">
@@ -155,6 +154,8 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       </div>
     </header>
   `;
+
+  const bodyClass = hasSidebar ? ' class="has-sidebar"' : "";
 
   return `<!doctype html>
 <html lang="en">
@@ -179,7 +180,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     * {
       box-sizing: border-box;
     }
-    body {
+    body${bodyClass} {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--color-bg);
@@ -601,7 +602,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         max-width: 100%;
       }
 
-      /* Phone behavior for pages with sidebar (unchanged logic) */
+      /* Phone behavior for pages with sidebar */
       body.has-sidebar .topbar-toggle {
         display:block;
         position:fixed;
@@ -612,10 +613,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         border:1px solid var(--color-border);
       }
       body.has-sidebar .topbar-right-text {
-        display:none;
+        display:none;   /* no Home/Admin buttons */
       }
       body.has-sidebar .topbar-user {
-        display:none;
+        display:none;   /* no avatar/name in title bar */
       }
 
       .app-shell {
