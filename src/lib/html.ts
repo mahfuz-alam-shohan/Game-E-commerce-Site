@@ -153,7 +153,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       border-radius:8px;
       background:var(--color-primary);
       color:#020617;
-      box-shadow:0 4px 12px rgba(0,0,0,0.35);
     }
     .logo-outline {
       padding:3px 7px;
@@ -166,7 +165,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       border-radius:999px;
       background:linear-gradient(135deg, var(--color-primary), rgba(59,130,246,0.6));
       color:#020617;
-      box-shadow:0 6px 18px rgba(0,0,0,0.4);
     }
 
     .btn {
@@ -210,10 +208,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 
     .card {
       background: var(--color-card-bg);
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid var(--color-border);
       padding: 18px 18px 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      box-shadow: none; /* no shadow, flat look */
     }
     .card-title {
       margin: 0 0 6px 0;
@@ -281,6 +279,27 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       flex-wrap: wrap;
     }
 
+    .list-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 4px;
+      border-bottom:1px solid var(--color-border);
+    }
+    .list-row-main {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .list-row-title {
+      font-size:14px;
+      font-weight:500;
+    }
+    .list-row-subtitle {
+      font-size:12px;
+      color:var(--color-muted);
+    }
+
     .app-shell {
       display: flex;
       min-height: calc(100vh - 56px);
@@ -330,6 +349,16 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       padding: 18px 16px 28px;
       width: 100%;
       max-width: 1200px;
+    }
+
+    .logo-preview-box {
+      margin-top:10px;
+      padding:12px 10px;
+      border-radius:6px;
+      border:1px dashed var(--color-border);
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
 
     @media (max-width: 768px) {

@@ -5,7 +5,7 @@ import { requireAdmin } from "../lib/auth";
 import { getSiteSettings, setR2Logo } from "../services/setupService";
 import { renderDashboardShell } from "../dashboards/layouts/shell";
 import { adminMenu } from "../dashboards/admin/menu";
-import { adminSettingsView, adminSettingsErrorView } from "../dashboards/admin/settings";
+import { adminSettingsIdentityView } from "../dashboards/admin/settings";
 
 export const adminLogoRouter = new Hono<{
   Bindings: Env;
@@ -22,9 +22,9 @@ adminLogoRouter.post("/upload", async c => {
   if (!(file instanceof File)) {
     const html = renderDashboardShell({
       userRole: "admin",
-      title: "Site & theme settings",
+      title: "Site identity",
       menu: adminMenu,
-      content: adminSettingsErrorView("No file selected."),
+      content: adminSettingsIdentityView(settings, "No file selected."),
       layoutOptions: {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
@@ -42,9 +42,9 @@ adminLogoRouter.post("/upload", async c => {
   if (file.size > maxSize) {
     const html = renderDashboardShell({
       userRole: "admin",
-      title: "Site & theme settings",
+      title: "Site identity",
       menu: adminMenu,
-      content: adminSettingsErrorView("File too large. Please use a logo under ~512 KB."),
+      content: adminSettingsIdentityView(settings, "File too large. Use a logo under ~512 KB."),
       layoutOptions: {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
@@ -68,19 +68,19 @@ adminLogoRouter.post("/upload", async c => {
 
   await setR2Logo(c.env, key);
 
-  // Reload settings after update
   const updated = await getSiteSettings(c.env);
   const html = renderDashboardShell({
     userRole: "admin",
-    title: "Site & theme settings",
+    title: "Site identity",
     menu: adminMenu,
-    content: adminSettingsView(updated),
+    content: adminSettingsIdentityView(updated),
     layoutOptions: {
       siteName: updated.siteName,
       themeMode: updated.themeMode,
       themePrimary: updated.themePrimary,
       logoMode: updated.siteLogoMode,
-      logoUrl: updated.siteLogoMode === "url" ? updated.siteLogoUrl : undefined,
+      logoUrl:
+        updated.siteLogoMode === "url" ? updated.siteLogoUrl : undefined,
       logoTextStyle: updated.siteLogoTextStyle
     }
   });
