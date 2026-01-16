@@ -19,7 +19,6 @@ export const adminCategoriesRouter = new Hono<{
   Variables: { user?: any };
 }>();
 
-// All /admin/categories/* requires admin
 adminCategoriesRouter.use("*", requireAdmin);
 
 function generateSlug(raw: string): string {
@@ -30,7 +29,7 @@ function generateSlug(raw: string): string {
   return cleaned || "category";
 }
 
-// GET /admin/categories -> list
+// GET /admin/categories
 adminCategoriesRouter.get("/", async c => {
   const settings = await getSiteSettings(c.env);
   const categories = await listCategories(c.env);
@@ -59,7 +58,7 @@ adminCategoriesRouter.get("/", async c => {
   return c.html(html);
 });
 
-// GET /admin/categories/new -> form
+// GET /admin/categories/new
 adminCategoriesRouter.get("/new", async c => {
   const settings = await getSiteSettings(c.env);
   const user = c.get("user") as any | undefined;
@@ -87,7 +86,7 @@ adminCategoriesRouter.get("/new", async c => {
   return c.html(html);
 });
 
-// POST /admin/categories/new -> create
+// POST /admin/categories/new
 adminCategoriesRouter.post("/new", async c => {
   const settings = await getSiteSettings(c.env);
   const user = c.get("user") as any | undefined;
