@@ -118,24 +118,20 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     : "";
 
   // PC / big screens: show buttons in header
-  const navRight = userName
+  const rightInner = userName
     ? `
-      <div class="topbar-right">
         <div class="topbar-right-text">
           <a href="/" class="btn-secondary btn">Home</a>
           <a href="/admin" class="btn btn-primary">Dashboard</a>
         </div>
         ${userBlock}
-      </div>
-    `
+      `
     : `
-      <div class="topbar-right">
         <div class="topbar-right-text">
           <a href="/" class="btn-secondary btn">Home</a>
           <a href="/auth/login" class="btn btn-primary">Admin</a>
         </div>
-      </div>
-    `;
+      `;
 
   const toggleButton = hasSidebar
     ? `
@@ -145,15 +141,18 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
+  // 🔁 Brand on left, buttons + user + toggle on right
   const headerHtml = `
     <header class="topbar">
       <div class="topbar-left">
-        ${toggleButton}
         <div class="topbar-brand">
           ${brandHtml}
         </div>
       </div>
-      ${navRight}
+      <div class="topbar-right">
+        ${rightInner}
+        ${toggleButton}
+      </div>
     </header>
   `;
 
@@ -597,13 +596,13 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
 
       /* Phone behavior for pages with sidebar */
       body.has-sidebar .topbar-toggle {
-        display:block;
+        display:block;          /* show menu icon on right */
       }
       body.has-sidebar .topbar-right-text {
-        display:none;   /* hide Home/Dashboard buttons on phone */
+        display:none;           /* hide Home/Dashboard buttons on phone */
       }
       body.has-sidebar .topbar-user {
-        display:none;   /* hide avatar + name from title bar on phone */
+        display:none;           /* hide avatar + name in title bar on phone */
       }
 
       .app-shell {
