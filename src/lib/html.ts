@@ -117,13 +117,11 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
-  // PC / big screens: show buttons in header
+  // 🔹 Header right side content:
+  // - When logged IN: only avatar + name (no Home/Dashboard buttons)
+  // - When logged OUT: keep Home/Admin buttons
   const rightInner = userName
     ? `
-        <div class="topbar-right-text">
-          <a href="/" class="btn-secondary btn">Home</a>
-          <a href="/admin" class="btn btn-primary">Dashboard</a>
-        </div>
         ${userBlock}
       `
     : `
@@ -141,12 +139,14 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     `
     : "";
 
-  // Brand on left, buttons + user + toggle on right
+  // 🔹 Brand wrapped in link → click logo/site name to go home
   const headerHtml = `
     <header class="topbar">
       <div class="topbar-left">
         <div class="topbar-brand">
-          ${brandHtml}
+          <a href="/" class="topbar-brand-link">
+            ${brandHtml}
+          </a>
         </div>
       </div>
       <div class="topbar-right">
@@ -155,8 +155,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       </div>
     </header>
   `;
-
-  const bodyClass = hasSidebar ? ' class="has-sidebar"' : "";
 
   return `<!doctype html>
 <html lang="en">
@@ -181,7 +179,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     * {
       box-sizing: border-box;
     }
-    body${bodyClass} {
+    body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--color-bg);
@@ -224,6 +222,13 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       display:flex;
       align-items:center;
       gap:8px;
+    }
+    .topbar-brand-link {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:inherit;
     }
 
     .brand-title {
@@ -596,7 +601,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         max-width: 100%;
       }
 
-      /* Phone behavior for pages with sidebar */
+      /* Phone behavior for pages with sidebar (unchanged logic) */
       body.has-sidebar .topbar-toggle {
         display:block;
         position:fixed;
@@ -607,10 +612,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         border:1px solid var(--color-border);
       }
       body.has-sidebar .topbar-right-text {
-        display:none;           /* hide Home/Dashboard buttons on phone */
+        display:none;
       }
       body.has-sidebar .topbar-user {
-        display:none;           /* hide avatar + name in title bar on phone */
+        display:none;
       }
 
       .app-shell {
@@ -619,7 +624,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       .app-sidebar {
         display:none;
         position:fixed;
-        top:0;                 /* cover title bar too */
+        top:0;
         left:0;
         bottom:0;
         z-index:50;
@@ -630,7 +635,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         display:block;
       }
 
-      /* On phone we WANT the sidebar user header visible */
       .app-sidebar-user {
         display:flex;
       }
@@ -647,7 +651,6 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
         left:auto;
         bottom:auto;
       }
-      /* On PC we HIDE the user block in sidebar, keep it in title bar */
       .app-sidebar-user {
         display:none;
       }
