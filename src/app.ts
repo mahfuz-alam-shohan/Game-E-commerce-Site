@@ -5,7 +5,6 @@ import { publicRouter } from "./routes/public";
 import { setupRouter } from "./routes/setup";
 import { adminDashboardRouter } from "./routes/adminDashboard";
 import { adminCategoriesRouter } from "./routes/adminCategories";
-import { adminLogoRouter } from "./routes/adminLogo";
 import { authRouter } from "./routes/auth";
 import { mediaRouter } from "./routes/media";
 import { ensureSchema } from "./lib/schema";
@@ -39,8 +38,5 @@ app.route("/admin", adminDashboardRouter);
 
 // Admin categories routes (guarded, /admin/categories/*)
 app.route("/admin/categories", adminCategoriesRouter);
-
-// Admin logo upload (guarded, /admin/logo/*)
-app.route("/admin/logo", adminLogoRouter);
 
 export default app;

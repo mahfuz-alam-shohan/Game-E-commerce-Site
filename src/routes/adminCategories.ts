@@ -34,6 +34,7 @@ function generateSlug(raw: string): string {
 adminCategoriesRouter.get("/", async c => {
   const settings = await getSiteSettings(c.env);
   const categories = await listCategories(c.env);
+  const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
     userRole: "admin",
@@ -43,8 +44,16 @@ adminCategoriesRouter.get("/", async c => {
     layoutOptions: {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
-    }
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
+    },
+    user
   });
 
   return c.html(html);
@@ -53,6 +62,7 @@ adminCategoriesRouter.get("/", async c => {
 // GET /admin/categories/new -> form
 adminCategoriesRouter.get("/new", async c => {
   const settings = await getSiteSettings(c.env);
+  const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
     userRole: "admin",
@@ -62,8 +72,16 @@ adminCategoriesRouter.get("/new", async c => {
     layoutOptions: {
       siteName: settings.siteName,
       themeMode: settings.themeMode,
-      themePrimary: settings.themePrimary
-    }
+      themePrimary: settings.themePrimary,
+      logoMode: settings.siteLogoMode,
+      logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
+    },
+    user
   });
 
   return c.html(html);
@@ -72,6 +90,7 @@ adminCategoriesRouter.get("/new", async c => {
 // POST /admin/categories/new -> create
 adminCategoriesRouter.post("/new", async c => {
   const settings = await getSiteSettings(c.env);
+  const user = c.get("user") as any | undefined;
   const formData = await c.req.formData();
 
   const name = (formData.get("name") || "").toString().trim();
@@ -89,8 +108,16 @@ adminCategoriesRouter.post("/new", async c => {
       layoutOptions: {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
-      }
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle,
+        topbarBg: settings.topbarBg,
+        topbarText: settings.topbarText,
+        sidebarBg: settings.sidebarBg,
+        sidebarText: settings.sidebarText
+      },
+      user
     });
     return c.html(html, 400);
   }
@@ -119,7 +146,7 @@ adminCategoriesRouter.post("/new", async c => {
       sortOrder,
       isActive
     });
-  } catch (err) {
+  } catch {
     const html = renderDashboardShell({
       userRole: "admin",
       title: "New category",
@@ -130,8 +157,16 @@ adminCategoriesRouter.post("/new", async c => {
       layoutOptions: {
         siteName: settings.siteName,
         themeMode: settings.themeMode,
-        themePrimary: settings.themePrimary
-      }
+        themePrimary: settings.themePrimary,
+        logoMode: settings.siteLogoMode,
+        logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+        logoTextStyle: settings.siteLogoTextStyle,
+        topbarBg: settings.topbarBg,
+        topbarText: settings.topbarText,
+        sidebarBg: settings.sidebarBg,
+        sidebarText: settings.sidebarText
+      },
+      user
     });
     return c.html(html, 400);
   }

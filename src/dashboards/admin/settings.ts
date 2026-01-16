@@ -24,7 +24,7 @@ export function adminSettingsIndexView(settings: SiteSettings) {
             <div class="list-row-main">
               <div class="list-row-title">Site theme</div>
               <div class="list-row-subtitle">
-                Dark/light mode and primary color.
+                Dark/light mode and colors for title bar and sidebar.
               </div>
             </div>
             <a href="/admin/settings/theme" class="btn-secondary btn">Open</a>
@@ -73,7 +73,7 @@ export function adminSettingsIdentityView(settings: SiteSettings, errorMessage?:
         <section>
           <h2 class="card-title">Basic details</h2>
           ${errorBlock}
-          <form method="POST" action="/admin/settings/identity">
+          <form method="POST" action="/admin/settings/identity" enctype="multipart/form-data">
             <div class="field">
               <label for="site_name">Site name</label>
               <input id="site_name" name="site_name" required value="${settings.siteName}" />
@@ -144,6 +144,15 @@ export function adminSettingsIdentityView(settings: SiteSettings, errorMessage?:
             </div>
 
             <div class="field">
+              <label for="logo_file">
+                Logo file (R2 upload)
+                <small>(PNG/JPEG/SVG, up to ~512 KB. If you choose a file, mode will switch to R2.)</small>
+              </label>
+              <input id="logo_file" name="logo_file" type="file" />
+              <small>${currentLogoSource}</small>
+            </div>
+
+            <div class="field">
               <label>Live logo preview</label>
               <div class="logo-preview-box">
                 <div id="logo-preview-area">
@@ -161,54 +170,34 @@ export function adminSettingsIdentityView(settings: SiteSettings, errorMessage?:
             </div>
           </form>
         </section>
-
-        <section>
-          <h2 class="card-title">Logo file (R2)</h2>
-          <p class="card-subtitle">
-            Upload a logo file to R2 storage. On success, the logo mode will switch to “Image from R2”.<br/>
-            ${currentLogoSource}
-          </p>
-          <form method="POST" action="/admin/logo/upload" enctype="multipart/form-data">
-            <div class="field">
-              <label for="logo_file">
-                Logo file
-                <small>(PNG/JPEG/SVG, up to ~512 KB)</small>
-              </label>
-              <input id="logo_file" name="logo_file" type="file" />
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn">Upload to R2</button>
-            </div>
-          </form>
-        </section>
       </div>
 
       <script>
         (function() {
           function renderPreview() {
-            const nameInput = document.getElementById("site_name");
-            const urlInput = document.getElementById("site_logo_url");
-            const modeInputs = document.querySelectorAll("input[name='logo_mode']");
-            const styleInputs = document.querySelectorAll("input[name='logo_text_style']");
-            const preview = document.getElementById("logo-preview-area");
+            var nameInput = document.getElementById("site_name");
+            var urlInput = document.getElementById("site_logo_url");
+            var modeInputs = document.querySelectorAll("input[name='logo_mode']");
+            var styleInputs = document.querySelectorAll("input[name='logo_text_style']");
+            var preview = document.getElementById("logo-preview-area");
             if (!nameInput || !preview) return;
 
-            const name = nameInput.value || "NutterTools";
-            let mode = "none";
+            var name = nameInput.value || "NutterTools";
+            var mode = "none";
             modeInputs.forEach(function(r) {
               if (r instanceof HTMLInputElement && r.checked) mode = r.value;
             });
 
-            let style = "plain";
+            var style = "plain";
             styleInputs.forEach(function(r) {
               if (r instanceof HTMLInputElement && r.checked) style = r.value;
             });
 
-            const url = urlInput ? urlInput.value : "";
-            let html = "";
+            var url = urlInput ? urlInput.value : "";
+            var html = "";
 
             if (mode === "text") {
-              let cls = "logo-text";
+              var cls = "logo-text";
               if (style === "sticker") cls += " logo-sticker";
               else if (style === "outline") cls += " logo-outline";
               else if (style === "soft") cls += " logo-soft";
@@ -233,7 +222,7 @@ export function adminSettingsIdentityView(settings: SiteSettings, errorMessage?:
           }
 
           document.addEventListener("input", function(e) {
-            const t = e.target;
+            var t = e.target;
             if (!t) return;
             if (
               t.id === "site_name" ||
@@ -260,14 +249,14 @@ export function adminSettingsThemeView(settings: SiteSettings, errorMessage?: st
   const errorBlock = errorMessage
     ? `<p class="card-subtitle" style="color:#f97373;margin-bottom:10px;">${errorMessage}</p>`
     : `<p class="card-subtitle">
-         Base theme for the whole admin and storefront. Component-level styling can be added later.
+         Base theme for the whole admin and storefront. You can customise title bar and sidebar colors here.
        </p>`;
 
   return `
     <div class="page">
       <h1 class="page-title">Site theme</h1>
       <p class="page-subtitle">
-        Dark/light mode and primary accent color.
+        Dark/light mode and colors for the dashboard shell.
       </p>
 
       <section>
@@ -288,6 +277,34 @@ export function adminSettingsThemeView(settings: SiteSettings, errorMessage?: st
               <small>(used for main buttons and accents)</small>
             </label>
             <input id="theme_primary" name="theme_primary" type="color" value="${settings.themePrimary}" />
+          </div>
+
+          <h3 class="card-title" style="margin-top:18px;font-size:14px;">Title bar</h3>
+          <div class="field">
+            <label for="topbar_bg">
+              Title bar background
+            </label>
+            <input id="topbar_bg" name="topbar_bg" type="color" value="${settings.topbarBg}" />
+          </div>
+          <div class="field">
+            <label for="topbar_text">
+              Title bar text
+            </label>
+            <input id="topbar_text" name="topbar_text" type="color" value="${settings.topbarText}" />
+          </div>
+
+          <h3 class="card-title" style="margin-top:18px;font-size:14px;">Sidebar</h3>
+          <div class="field">
+            <label for="sidebar_bg">
+              Sidebar background
+            </label>
+            <input id="sidebar_bg" name="sidebar_bg" type="color" value="${settings.sidebarBg}" />
+          </div>
+          <div class="field">
+            <label for="sidebar_text">
+              Sidebar text
+            </label>
+            <input id="sidebar_text" name="sidebar_text" type="color" value="${settings.sidebarText}" />
           </div>
 
           <div class="form-actions">

@@ -1,5 +1,9 @@
 // src/lib/html.ts
-import type { LogoMode, LogoTextStyle, ThemeMode } from "../services/setupService";
+import type {
+  LogoMode,
+  LogoTextStyle,
+  ThemeMode
+} from "../services/setupService";
 
 export interface LayoutOptions {
   siteName?: string;
@@ -8,6 +12,10 @@ export interface LayoutOptions {
   logoMode?: LogoMode;
   logoUrl?: string;
   logoTextStyle?: LogoTextStyle;
+  topbarBg?: string;
+  topbarText?: string;
+  sidebarBg?: string;
+  sidebarText?: string;
 }
 
 function renderBrand(opts: LayoutOptions): string {
@@ -61,6 +69,15 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
   const cardBg = mode === "light" ? "#ffffff" : "#020617";
   const muted = mode === "light" ? "#6b7280" : "#9ca3af";
 
+  const topbarBg =
+    opts?.topbarBg || (mode === "light" ? "#ffffff" : "#020617");
+  const topbarText =
+    opts?.topbarText || (mode === "light" ? "#020617" : "#e5e7eb");
+  const sidebarBg =
+    opts?.sidebarBg || (mode === "light" ? "#f3f4f6" : "#020617");
+  const sidebarText =
+    opts?.sidebarText || (mode === "light" ? "#020617" : "#e5e7eb");
+
   const brandHtml = renderBrand({
     siteName,
     logoMode: opts?.logoMode,
@@ -83,6 +100,10 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       --color-card-bg: ${cardBg};
       --color-muted: ${muted};
       --color-primary: ${primary};
+      --topbar-bg: ${topbarBg};
+      --topbar-text: ${topbarText};
+      --sidebar-bg: ${sidebarBg};
+      --sidebar-text: ${sidebarText};
     }
     * {
       box-sizing: border-box;
@@ -211,7 +232,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       border-radius: 6px;
       border: 1px solid var(--color-border);
       padding: 18px 18px 20px;
-      box-shadow: none; /* no shadow, flat look */
+      box-shadow: none;
     }
     .card-title {
       margin: 0 0 6px 0;
@@ -309,6 +330,8 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       width: 240px;
       padding: 14px 12px;
       border-right: 1px solid var(--color-border);
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
     }
     .app-sidebar-title {
       margin: 0 0 14px 0;
@@ -323,7 +346,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
       font-size: 14px;
     }
     .app-sidebar-nav a {
-      color: var(--color-text);
+      color: var(--sidebar-text);
       text-decoration: none;
       padding: 6px 8px;
       border-radius: 6px;
@@ -340,11 +363,64 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     .app-topbar {
       padding: 10px 16px;
       border-bottom: 1px solid var(--color-border);
+      background: var(--topbar-bg);
+      color: var(--topbar-text);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
     }
-    .app-topbar h2 {
+    .app-topbar-left h2 {
       margin: 0;
       font-size: 16px;
     }
+    .app-topbar-right {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .app-topbar-user {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .app-topbar-avatar {
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      object-fit:cover;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+    }
+    .app-topbar-avatar-fallback {
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:600;
+      border:1px solid var(--color-border);
+      background:var(--color-card-bg);
+    }
+    .app-topbar-user-meta {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      font-size:12px;
+    }
+    .app-topbar-user-name {
+      font-weight:500;
+    }
+    .app-topbar-user-link {
+      font-size:11px;
+      color:var(--color-muted);
+      text-decoration:none;
+    }
+    .app-topbar-user-link:hover {
+      text-decoration:underline;
+    }
+
     .app-main-content {
       padding: 18px 16px 28px;
       width: 100%;
@@ -397,6 +473,7 @@ export function layout(title: string, body: string, opts?: LayoutOptions): strin
     <div>${brandHtml}</div>
     <nav>
       <a href="/" class="btn-secondary btn">Home</a>
+      <a href="/admin" class="btn">Dashboard</a>
     </nav>
   </header>
   <main>${body}</main>

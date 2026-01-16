@@ -16,6 +16,10 @@ export interface SiteSettings {
   siteLogoTextStyle: LogoTextStyle;
   themeMode: ThemeMode;
   themePrimary: string;
+  topbarBg: string;
+  topbarText: string;
+  sidebarBg: string;
+  sidebarText: string;
 }
 
 function getString(map: Map<string, string>, key: string, fallback: string): string {
@@ -58,6 +62,17 @@ export async function getSiteSettings(env: Env): Promise<SiteSettings> {
       ? logoTextStyleRaw
       : "plain";
 
+  // Defaults for per-component colors follow theme mode
+  const defaultTopbarBg = themeMode === "light" ? "#ffffff" : "#020617";
+  const defaultTopbarText = themeMode === "light" ? "#020617" : "#e5e7eb";
+  const defaultSidebarBg = themeMode === "light" ? "#f3f4f6" : "#020617";
+  const defaultSidebarText = themeMode === "light" ? "#020617" : "#e5e7eb";
+
+  const topbarBg = getString(map, "theme_topbar_bg", defaultTopbarBg);
+  const topbarText = getString(map, "theme_topbar_text", defaultTopbarText);
+  const sidebarBg = getString(map, "theme_sidebar_bg", defaultSidebarBg);
+  const sidebarText = getString(map, "theme_sidebar_text", defaultSidebarText);
+
   return {
     siteName: getString(map, "site_name", "GameStore"),
     siteMotto: getString(map, "site_motto", ""),
@@ -66,7 +81,11 @@ export async function getSiteSettings(env: Env): Promise<SiteSettings> {
     siteLogoR2Key: getString(map, "site_logo_r2_key", ""),
     siteLogoTextStyle: logoTextStyle,
     themeMode,
-    themePrimary
+    themePrimary,
+    topbarBg,
+    topbarText,
+    sidebarBg,
+    sidebarText
   };
 }
 
@@ -158,14 +177,17 @@ export async function updateBrandSettings(env: Env, data: {
   await db.batch(stmts);
 }
 
-// Theme settings
+// Theme settings with per-component colors
 export async function updateThemeSettings(env: Env, data: {
   themeMode: ThemeMode;
   themePrimary: string;
+  topbarBg: string;
+  topbarText: string;
+  sidebarBg: string;
+  sidebarText: string;
 }): Promise<void> {
   const db = getDb(env);
-  const mode: ThemeMode =
-    data.themeMode === "light" ? "light" : "dark";
+  const mode: ThemeMode = data.themeMode === "light" ? "light" : "dark";
   const primary = data.themePrimary || "#22c55e";
 
   const stmts = [
@@ -174,7 +196,19 @@ export async function updateThemeSettings(env: Env, data: {
     ).bind("theme_mode", mode),
     db.prepare(
       "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
-    ).bind("theme_primary", primary)
+    ).bind("theme_primary", primary),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("theme_topbar_bg", data.topbarBg),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("theme_topbar_text", data.topbarText),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("theme_sidebar_bg", data.sidebarBg),
+    db.prepare(
+      "INSERT OR REPLACE INTO site_settings (key, value) VALUES (?1, ?2)"
+    ).bind("theme_sidebar_text", data.sidebarText)
   ];
 
   await db.batch(stmts);

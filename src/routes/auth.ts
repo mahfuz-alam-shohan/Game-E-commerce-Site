@@ -48,7 +48,11 @@ authRouter.get("/login", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
     })
   );
 });
@@ -81,7 +85,11 @@ authRouter.post("/login", async c => {
         themePrimary: settings.themePrimary,
         logoMode: settings.siteLogoMode,
         logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-        logoTextStyle: settings.siteLogoTextStyle
+        logoTextStyle: settings.siteLogoTextStyle,
+        topbarBg: settings.topbarBg,
+        topbarText: settings.topbarText,
+        sidebarBg: settings.sidebarBg,
+        sidebarText: settings.sidebarText
       }),
       400
     );
@@ -111,7 +119,11 @@ authRouter.post("/login", async c => {
         themePrimary: settings.themePrimary,
         logoMode: settings.siteLogoMode,
         logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-        logoTextStyle: settings.siteLogoTextStyle
+        logoTextStyle: settings.siteLogoTextStyle,
+        topbarBg: settings.topbarBg,
+        topbarText: settings.topbarText,
+        sidebarBg: settings.sidebarBg,
+        sidebarText: settings.sidebarText
       }),
       401
     );
@@ -140,7 +152,11 @@ authRouter.post("/login", async c => {
         themePrimary: settings.themePrimary,
         logoMode: settings.siteLogoMode,
         logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-        logoTextStyle: settings.siteLogoTextStyle
+        logoTextStyle: settings.siteLogoTextStyle,
+        topbarBg: settings.topbarBg,
+        topbarText: settings.topbarText,
+        sidebarBg: settings.sidebarBg,
+        sidebarText: settings.sidebarText
       }),
       401
     );
@@ -194,7 +210,11 @@ authRouter.get("/logout", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
     })
   );
 });

@@ -38,7 +38,11 @@ publicRouter.get("/", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
     })
   );
 });

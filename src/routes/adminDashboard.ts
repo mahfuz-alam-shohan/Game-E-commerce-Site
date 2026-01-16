@@ -14,7 +14,8 @@ import { requireAdmin } from "../lib/auth";
 import {
   getSiteSettings,
   updateBrandSettings,
-  updateThemeSettings
+  updateThemeSettings,
+  setR2Logo
 } from "../services/setupService";
 
 export const adminDashboardRouter = new Hono<{
@@ -28,6 +29,7 @@ adminDashboardRouter.use("*", requireAdmin);
 // Dashboard home
 adminDashboardRouter.get("/", async c => {
   const settings = await getSiteSettings(c.env);
+  const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
     userRole: "admin",
@@ -40,8 +42,13 @@ adminDashboardRouter.get("/", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
-    }
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
+    },
+    user
   });
 
   return c.html(html);
@@ -50,6 +57,7 @@ adminDashboardRouter.get("/", async c => {
 // Settings index
 adminDashboardRouter.get("/settings", async c => {
   const settings = await getSiteSettings(c.env);
+  const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
     userRole: "admin",
@@ -62,8 +70,13 @@ adminDashboardRouter.get("/settings", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
-    }
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
+    },
+    user
   });
 
   return c.html(html);
@@ -72,6 +85,7 @@ adminDashboardRouter.get("/settings", async c => {
 // Site identity (GET)
 adminDashboardRouter.get("/settings/identity", async c => {
   const settings = await getSiteSettings(c.env);
+  const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
     userRole: "admin",
@@ -84,23 +98,30 @@ adminDashboardRouter.get("/settings/identity", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
-    }
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
+    },
+    user
   });
 
   return c.html(html);
 });
 
-// Site identity (POST)
+// Site identity (POST) – includes optional R2 upload
 adminDashboardRouter.post("/settings/identity", async c => {
   const settingsBefore = await getSiteSettings(c.env);
   const formData = await c.req.formData();
+  const user = c.get("user") as any | undefined;
 
   const siteName = (formData.get("site_name") || "").toString().trim();
   const siteMotto = (formData.get("site_motto") || "").toString().trim();
   const siteLogoUrl = (formData.get("site_logo_url") || "").toString().trim();
   const logoModeRaw = (formData.get("logo_mode") || "").toString().trim();
   const logoTextStyleRaw = (formData.get("logo_text_style") || "").toString().trim();
+  const file = formData.get("logo_file");
 
   if (!siteName) {
     const html = renderDashboardShell({
@@ -115,27 +136,77 @@ adminDashboardRouter.post("/settings/identity", async c => {
         logoMode: settingsBefore.siteLogoMode,
         logoUrl:
           settingsBefore.siteLogoMode === "url" ? settingsBefore.siteLogoUrl : undefined,
-        logoTextStyle: settingsBefore.siteLogoTextStyle
-      }
+        logoTextStyle: settingsBefore.siteLogoTextStyle,
+        topbarBg: settingsBefore.topbarBg,
+        topbarText: settingsBefore.topbarText,
+        sidebarBg: settingsBefore.sidebarBg,
+        sidebarText: settingsBefore.sidebarText
+      },
+      user
     });
     return c.html(html, 400);
   }
+
+  // Resolve logo mode
+  let chosenLogoMode: "none" | "text" | "url" | "r2";
+  if (logoModeRaw === "text" || logoModeRaw === "url" || logoModeRaw === "r2") {
+    chosenLogoMode = logoModeRaw as any;
+  } else {
+    chosenLogoMode = "none";
+  }
+
+  // If a file is provided, upload to R2 and switch to r2 mode
+  if (file instanceof File && file.size > 0) {
+    const maxSize = 512 * 1024;
+    if (file.size > maxSize) {
+      const html = renderDashboardShell({
+        userRole: "admin",
+        title: "Site identity",
+        menu: adminMenu,
+        content: adminSettingsIdentityView(settingsBefore, "File too large. Use a logo under ~512 KB."),
+        layoutOptions: {
+          siteName: settingsBefore.siteName,
+          themeMode: settingsBefore.themeMode,
+          themePrimary: settingsBefore.themePrimary,
+          logoMode: settingsBefore.siteLogoMode,
+          logoUrl:
+            settingsBefore.siteLogoMode === "url" ? settingsBefore.siteLogoUrl : undefined,
+          logoTextStyle: settingsBefore.siteLogoTextStyle,
+          topbarBg: settingsBefore.topbarBg,
+          topbarText: settingsBefore.topbarText,
+          sidebarBg: settingsBefore.sidebarBg,
+          sidebarText: settingsBefore.sidebarText
+        },
+        user
+      });
+      return c.html(html, 400);
+    }
+
+    const contentType = file.type || "image/png";
+    const key = "site-logo";
+    const arrayBuffer = await file.arrayBuffer();
+    await c.env.BUCKET.put(key, arrayBuffer, {
+      httpMetadata: { contentType }
+    });
+
+    await setR2Logo(c.env, key);
+    chosenLogoMode = "r2";
+  }
+
+  const logoTextStyle =
+    logoTextStyleRaw === "sticker" ||
+    logoTextStyleRaw === "outline" ||
+    logoTextStyleRaw === "soft"
+      ? (logoTextStyleRaw as any)
+      : "plain";
 
   try {
     await updateBrandSettings(c.env, {
       siteName,
       siteMotto,
       siteLogoUrl,
-      logoMode:
-        logoModeRaw === "text" || logoModeRaw === "url" || logoModeRaw === "r2"
-          ? (logoModeRaw as any)
-          : "none",
-      logoTextStyle:
-        logoTextStyleRaw === "sticker" ||
-        logoTextStyleRaw === "outline" ||
-        logoTextStyleRaw === "soft"
-          ? (logoTextStyleRaw as any)
-          : "plain"
+      logoMode: chosenLogoMode,
+      logoTextStyle
     });
   } catch {
     const html = renderDashboardShell({
@@ -150,8 +221,13 @@ adminDashboardRouter.post("/settings/identity", async c => {
         logoMode: settingsBefore.siteLogoMode,
         logoUrl:
           settingsBefore.siteLogoMode === "url" ? settingsBefore.siteLogoUrl : undefined,
-        logoTextStyle: settingsBefore.siteLogoTextStyle
-      }
+        logoTextStyle: settingsBefore.siteLogoTextStyle,
+        topbarBg: settingsBefore.topbarBg,
+        topbarText: settingsBefore.topbarText,
+        sidebarBg: settingsBefore.sidebarBg,
+        sidebarText: settingsBefore.sidebarText
+      },
+      user
     });
     return c.html(html, 500);
   }
@@ -162,6 +238,7 @@ adminDashboardRouter.post("/settings/identity", async c => {
 // Site theme (GET)
 adminDashboardRouter.get("/settings/theme", async c => {
   const settings = await getSiteSettings(c.env);
+  const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
     userRole: "admin",
@@ -174,8 +251,13 @@ adminDashboardRouter.get("/settings/theme", async c => {
       themePrimary: settings.themePrimary,
       logoMode: settings.siteLogoMode,
       logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
-      logoTextStyle: settings.siteLogoTextStyle
-    }
+      logoTextStyle: settings.siteLogoTextStyle,
+      topbarBg: settings.topbarBg,
+      topbarText: settings.topbarText,
+      sidebarBg: settings.sidebarBg,
+      sidebarText: settings.sidebarText
+    },
+    user
   });
 
   return c.html(html);
@@ -185,9 +267,14 @@ adminDashboardRouter.get("/settings/theme", async c => {
 adminDashboardRouter.post("/settings/theme", async c => {
   const settingsBefore = await getSiteSettings(c.env);
   const formData = await c.req.formData();
+  const user = c.get("user") as any | undefined;
 
   const themeModeRaw = (formData.get("theme_mode") || "").toString().trim();
   const themePrimary = (formData.get("theme_primary") || "").toString().trim();
+  const topbarBg = (formData.get("topbar_bg") || "").toString().trim() || settingsBefore.topbarBg;
+  const topbarText = (formData.get("topbar_text") || "").toString().trim() || settingsBefore.topbarText;
+  const sidebarBg = (formData.get("sidebar_bg") || "").toString().trim() || settingsBefore.sidebarBg;
+  const sidebarText = (formData.get("sidebar_text") || "").toString().trim() || settingsBefore.sidebarText;
 
   try {
     const themeMode =
@@ -195,7 +282,11 @@ adminDashboardRouter.post("/settings/theme", async c => {
 
     await updateThemeSettings(c.env, {
       themeMode,
-      themePrimary: themePrimary || settingsBefore.themePrimary
+      themePrimary: themePrimary || settingsBefore.themePrimary,
+      topbarBg,
+      topbarText,
+      sidebarBg,
+      sidebarText
     });
   } catch {
     const html = renderDashboardShell({
@@ -210,8 +301,13 @@ adminDashboardRouter.post("/settings/theme", async c => {
         logoMode: settingsBefore.siteLogoMode,
         logoUrl:
           settingsBefore.siteLogoMode === "url" ? settingsBefore.siteLogoUrl : undefined,
-        logoTextStyle: settingsBefore.siteLogoTextStyle
-      }
+        logoTextStyle: settingsBefore.siteLogoTextStyle,
+        topbarBg: settingsBefore.topbarBg,
+        topbarText: settingsBefore.topbarText,
+        sidebarBg: settingsBefore.sidebarBg,
+        sidebarText: settingsBefore.sidebarText
+      },
+      user
     });
     return c.html(html, 500);
   }
