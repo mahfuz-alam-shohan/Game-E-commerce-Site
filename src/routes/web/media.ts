@@ -1,7 +1,7 @@
 // src/routes/media.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { getSiteSettings } from "../services/setupService";
+import type { Env } from "../../types";
+import { getSiteSettings } from "../../services/setupService";
 
 export const mediaRouter = new Hono<{ Bindings: Env }>();
 

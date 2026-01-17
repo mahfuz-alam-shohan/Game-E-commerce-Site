@@ -1,11 +1,11 @@
 // src/routes/adminLogo.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { requireAdmin } from "../lib/auth";
-import { getSiteSettings, setR2Logo } from "../services/setupService";
-import { renderDashboardShell } from "../dashboards/layouts/shell";
-import { adminMenu } from "../dashboards/admin/menu";
-import { adminSettingsIdentityView } from "../dashboards/admin/settings";
+import type { Env } from "../../types";
+import { requireAdmin } from "../../lib/auth";
+import { getSiteSettings, setR2Logo } from "../../services/setupService";
+import { renderDashboardShell } from "../../dashboards/layouts/shell";
+import { adminMenu } from "../../dashboards/admin/menu";
+import { adminSettingsIdentityView } from "../../dashboards/admin/settings";
 
 export const adminLogoRouter = new Hono<{
   Bindings: Env;

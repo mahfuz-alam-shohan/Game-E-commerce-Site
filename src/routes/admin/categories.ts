@@ -1,18 +1,18 @@
 // src/routes/adminCategories.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { requireAdmin } from "../lib/auth";
-import { getSiteSettings } from "../services/setupService";
-import { renderDashboardShell } from "../dashboards/layouts/shell";
-import { adminMenu } from "../dashboards/admin/menu";
+import type { Env } from "../../types";
+import { requireAdmin } from "../../lib/auth";
+import { getSiteSettings } from "../../services/setupService";
+import { renderDashboardShell } from "../../dashboards/layouts/shell";
+import { adminMenu } from "../../dashboards/admin/menu";
 import {
   listCategories,
   createCategory
-} from "../services/categoryService";
+} from "../../services/categoryService";
 import {
   adminCategoryListView,
   adminCategoryNewView
-} from "../dashboards/admin/categories";
+} from "../../dashboards/admin/categories";
 
 export const adminCategoriesRouter = new Hono<{
   Bindings: Env;

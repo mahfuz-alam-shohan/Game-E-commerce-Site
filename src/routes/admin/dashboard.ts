@@ -1,21 +1,21 @@
-// src/routes/adminDashboard.ts
+// src/routes/admin/dashboard.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { renderDashboardShell } from "../dashboards/layouts/shell";
-import { adminMenu } from "../dashboards/admin/menu";
-import { adminHomeView } from "../dashboards/admin/home";
+import type { Env } from "../../types";
+import { renderDashboardShell } from "../../dashboards/layouts/shell";
+import { adminMenu } from "../../dashboards/admin/menu";
+import { adminHomeView } from "../../dashboards/admin/home";
 import {
   adminSettingsIndexView,
   adminSettingsIdentityView,
   adminSettingsThemeView
-} from "../dashboards/admin/settings";
-import { requireAdmin } from "../lib/auth";
+} from "../../dashboards/admin/settings";
+import { requireAdmin } from "../../lib/auth";
 import {
   getSiteSettings,
   updateBrandSettings,
   updateThemeSettings,
   setR2Logo
-} from "../services/setupService";
+} from "../../services/setupService";
 
 export const adminDashboardRouter = new Hono<{
   Bindings: Env;
@@ -31,7 +31,7 @@ adminDashboardRouter.get("/", async c => {
   const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
-    userRole: "admin",
+    userRole: user?.role || "admin",
     title: "Admin dashboard",
     menu: adminMenu,
     content: adminHomeView(),
@@ -59,7 +59,7 @@ adminDashboardRouter.get("/settings", async c => {
   const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
-    userRole: "admin",
+    userRole: user?.role || "admin",
     title: "Settings",
     menu: adminMenu,
     content: adminSettingsIndexView(settings),
@@ -87,7 +87,7 @@ adminDashboardRouter.get("/settings/identity", async c => {
   const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
-    userRole: "admin",
+    userRole: user?.role || "admin",
     title: "Site identity",
     menu: adminMenu,
     content: adminSettingsIdentityView(settings),
@@ -124,7 +124,7 @@ adminDashboardRouter.post("/settings/identity", async c => {
 
   if (!siteName) {
     const html = renderDashboardShell({
-      userRole: "admin",
+      userRole: user?.role || "admin",
       title: "Site identity",
       menu: adminMenu,
       content: adminSettingsIdentityView(settingsBefore, "Site name is required."),
@@ -158,7 +158,7 @@ adminDashboardRouter.post("/settings/identity", async c => {
     const maxSize = 512 * 1024;
     if (file.size > maxSize) {
       const html = renderDashboardShell({
-        userRole: "admin",
+        userRole: user?.role || "admin",
         title: "Site identity",
         menu: adminMenu,
         content: adminSettingsIdentityView(
@@ -211,7 +211,7 @@ adminDashboardRouter.post("/settings/identity", async c => {
     });
   } catch {
     const html = renderDashboardShell({
-      userRole: "admin",
+      userRole: user?.role || "admin",
       title: "Site identity",
       menu: adminMenu,
       content: adminSettingsIdentityView(
@@ -245,7 +245,7 @@ adminDashboardRouter.get("/settings/theme", async c => {
   const user = c.get("user") as any | undefined;
 
   const html = renderDashboardShell({
-    userRole: "admin",
+    userRole: user?.role || "admin",
     title: "Site theme",
     menu: adminMenu,
     content: adminSettingsThemeView(settings),
@@ -292,7 +292,7 @@ adminDashboardRouter.post("/settings/theme", async c => {
     });
   } catch {
     const html = renderDashboardShell({
-      userRole: "admin",
+      userRole: user?.role || "admin",
       title: "Site theme",
       menu: adminMenu,
       content: adminSettingsThemeView(settingsBefore, "Failed to save theme."),

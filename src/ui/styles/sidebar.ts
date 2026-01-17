@@ -144,6 +144,9 @@ export function getSidebarStyles(opts: LayoutOptions): string {
       body.sidebar-open .app-sidebar-mobile {
         display:flex;
       }
+      .app-sidebar-desktop {
+        display: none !important;
+      }
       .app-sidebar-user {
         display:flex;
       }

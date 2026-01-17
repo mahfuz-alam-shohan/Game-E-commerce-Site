@@ -1,9 +1,9 @@
 // src/routes/public.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { layout } from "../lib/html";
-import { hasAnyAdmin, getSiteSettings } from "../services/setupService";
-import { renderMobileSidebar, renderDesktopSidebar } from "../ui/components/sidebar";
+import type { Env } from "../../types";
+import { layout } from "../../lib/html";
+import { hasAnyAdmin, getSiteSettings } from "../../services/setupService";
+import { renderMobileSidebar, renderDesktopSidebar } from "../../ui/components/sidebar";
 
 export const publicRouter = new Hono<{ Bindings: Env; Variables: { user?: any } }>();
 

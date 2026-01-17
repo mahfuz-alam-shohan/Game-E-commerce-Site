@@ -1,13 +1,13 @@
 // src/routes/setup.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { layout } from "../lib/html";
+import type { Env } from "../../types";
+import { layout } from "../../lib/html";
 import {
   hasAnyAdmin,
   saveInitialSiteSettings,
   createFirstAdmin,
   getSiteSettings
-} from "../services/setupService";
+} from "../../services/setupService";
 
 export const setupRouter = new Hono<{ Bindings: Env }>();
 

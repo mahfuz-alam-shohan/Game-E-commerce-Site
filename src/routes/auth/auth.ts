@@ -1,11 +1,11 @@
 // src/routes/auth.ts
 import { Hono } from "hono";
-import type { Env } from "../types";
-import { layout } from "../lib/html";
-import { findUserByEmail, createSession, deleteSession } from "../services/userService";
-import { verifyPassword } from "../lib/security";
-import { setSessionCookie, clearSessionCookie } from "../lib/auth";
-import { getSiteSettings } from "../services/setupService";
+import type { Env } from "../../types";
+import { layout } from "../../lib/html";
+import { findUserByEmail, createSession, deleteSession } from "../../services/userService";
+import { verifyPassword } from "../../lib/security";
+import { setSessionCookie, clearSessionCookie } from "../../lib/auth";
+import { getSiteSettings } from "../../services/setupService";
 
 export const authRouter = new Hono<{ Bindings: Env }>();
 
