@@ -37,7 +37,11 @@ export function clearSessionCookie(c: Context<{ Bindings: Env }>) {
   );
 }
 
-export async function requireAdmin(
+/**
+ * Middleware to optionally load user session if present.
+ * Doesn't require login - just loads user if session exists.
+ */
+export async function loadUserSession(
   c: Context<{ Bindings: Env; Variables: { user?: any } }>,
   next: Next
 ) {
@@ -45,19 +49,30 @@ export async function requireAdmin(
   const cookies = parseCookies(cookieHeader);
   const sessionId = cookies[SESSION_COOKIE];
 
-  if (!sessionId) {
-    return c.redirect("/auth/login");
+  if (sessionId) {
+    const user = await getUserBySession(c.env, sessionId);
+    if (user) {
+      // Valid session - attach user to context
+      c.set("user", user);
+    } else {
+      // Invalid/expired session - clean it up silently
+      await deleteSession(c.env, sessionId);
+      clearSessionCookie(c);
+    }
   }
 
-  const user = await getUserBySession(c.env, sessionId);
+  return next();
+}
+
+export async function requireAdmin(
+  c: Context<{ Bindings: Env; Variables: { user?: any } }>,
+  next: Next
+) {
+  const user = c.get("user");
+
   if (!user || !["admin", "super_admin"].includes(user.role)) {
-    // Kill bad session if exists
-    await deleteSession(c.env, sessionId);
-    clearSessionCookie(c);
     return c.redirect("/auth/login");
   }
 
-  // Attach user to context for later if needed
-  c.set("user", user);
   return next();
 }

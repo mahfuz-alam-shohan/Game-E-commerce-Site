@@ -8,8 +8,9 @@ import { adminCategoriesRouter } from "./routes/adminCategories";
 import { authRouter } from "./routes/auth";
 import { mediaRouter } from "./routes/media";
 import { ensureSchema } from "./lib/schema";
+import { loadUserSession } from "./lib/auth";
 
-export const app = new Hono<{ Bindings: Env }>();
+export const app = new Hono<{ Bindings: Env; Variables: { user?: any } }>();
 
 // Ensure DB schema exists before handling any request
 app.use("*", async (c, next) => {
@@ -20,6 +21,9 @@ app.use("*", async (c, next) => {
   }
   return next();
 });
+
+// Load user session on all routes (optional - doesn't require login)
+app.use("*", loadUserSession);
 
 // Public routes
 app.route("/", publicRouter);

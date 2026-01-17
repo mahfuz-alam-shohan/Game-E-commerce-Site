@@ -1,8 +1,11 @@
 // src/dashboards/layouts/shell.ts
 import { layout, type LayoutOptions } from "../../lib/html";
+import { renderMobileSidebar, renderDesktopSidebar } from "../../ui/components/sidebar";
+import type { UserInfo } from "../../ui/components/types";
 
 interface DashboardUser {
   name?: string;
+  email?: string;
   avatar_url?: string | null;
   role?: string;
 }
@@ -16,35 +19,34 @@ export function renderDashboardShell(opts: {
   user?: DashboardUser;
 }) {
   const displayName = (opts.user?.name || "Admin").toString();
+  const userEmail = (opts.user?.email || "").toString();
   const avatarUrl = opts.user?.avatar_url || null;
-  const sidebarInitial = displayName.charAt(0).toUpperCase();
   const roleLabel = (opts.userRole || "admin").toUpperCase();
 
-  const sidebarUserBlock = `
-    <div class="app-sidebar-user">
-      ${
-        avatarUrl
-          ? `<img src="${avatarUrl}" alt="${displayName}" class="app-sidebar-user-avatar" />`
-          : `<div class="app-sidebar-user-avatar-fallback">${sidebarInitial}</div>`
-      }
-      <div class="app-sidebar-user-meta">
-        <div class="app-sidebar-user-name">${displayName}</div>
-        <div class="app-sidebar-user-role">${roleLabel}</div>
-      </div>
-    </div>
-  `;
+  const userInfo: UserInfo = {
+    name: displayName,
+    email: userEmail,
+    avatar_url: avatarUrl,
+    role: opts.userRole
+  };
 
-  const sidebar = `
-    <aside class="app-sidebar">
-      ${sidebarUserBlock}
-      <h3 class="app-sidebar-title">${roleLabel}</h3>
-      <nav class="app-sidebar-nav">
-        ${opts.menu
-          .map(item => `<a href="${item.href}">${item.label}</a>`)
-          .join("")}
-      </nav>
-    </aside>
-  `;
+  // Render mobile and desktop sidebars separately
+  const mobileSidebar = renderMobileSidebar({
+    ...opts.layoutOptions,
+    menu: opts.menu,
+    user: userInfo,
+    userRole: roleLabel
+  });
+
+  const desktopSidebar = renderDesktopSidebar({
+    ...opts.layoutOptions,
+    menu: opts.menu,
+    user: userInfo,
+    userRole: roleLabel
+  });
+
+  // Combine both sidebars (CSS will handle showing/hiding based on viewport)
+  const sidebar = `${mobileSidebar}${desktopSidebar}`;
 
   // ❗ No extra <h1> here – each view is responsible for its own heading
   const contentArea = `

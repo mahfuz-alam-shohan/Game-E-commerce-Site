@@ -3,15 +3,16 @@ import { Hono } from "hono";
 import type { Env } from "../types";
 import { layout } from "../lib/html";
 import { hasAnyAdmin, getSiteSettings } from "../services/setupService";
+import { renderMobileSidebar, renderDesktopSidebar } from "../ui/components/sidebar";
 
-export const publicRouter = new Hono<{ Bindings: Env }>();
+export const publicRouter = new Hono<{ Bindings: Env; Variables: { user?: any } }>();
 
 publicRouter.get("/", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   const settings = await getSiteSettings(c.env);
 
-  // Read user from context (set in app.ts middleware)
-  const user: any = (c as any).get?.("user") || undefined;
+  // Read user from context (set by loadUserSession middleware in app.ts)
+  const user = c.get("user") as any | undefined;
 
   const cta = user
     ? `<a href="/admin" class="btn">Open admin dashboard</a>`
@@ -19,29 +20,41 @@ publicRouter.get("/", async c => {
       ? `<a href="/auth/login" class="btn">Admin login</a>`
       : `<a href="/setup/site" class="btn">Start initial setup</a>`;
 
-  // Sidebar for public / landing
-  const sidebarLinks = user
-    ? `
-      <a href="/">Home</a>
-      <a href="/admin">Dashboard</a>
-      <a href="#">Browse optimizers (coming soon)</a>
-      <a href="#">Skins & passes (coming soon)</a>
-    `
-    : `
-      <a href="/">Home</a>
-      <a href="/auth/login">Admin login</a>
-      <a href="#">Browse optimizers (coming soon)</a>
-      <a href="#">Skins & passes (coming soon)</a>
-    `;
+  // Use modular sidebar components (mobile and desktop)
+  const mobileSidebar = renderMobileSidebar({
+    siteName: settings.siteName,
+    themeMode: settings.themeMode,
+    themePrimary: settings.themePrimary,
+    logoMode: settings.siteLogoMode,
+    logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+    logoTextStyle: settings.siteLogoTextStyle,
+    topbarBg: settings.topbarBg,
+    topbarText: settings.topbarText,
+    sidebarBg: settings.sidebarBg,
+    sidebarText: settings.sidebarText,
+    user: user ? { name: user.name, email: user.email, avatar_url: user.avatar_url, role: user.role } : undefined,
+    userRole: user?.role
+  });
 
-  const sidebar = `
-    <aside class="app-sidebar">
-      <h3 class="app-sidebar-title">NAVIGATION</h3>
-      <nav class="app-sidebar-nav">
-        ${sidebarLinks}
-      </nav>
-    </aside>
-  `;
+  const desktopSidebar = renderDesktopSidebar({
+    siteName: settings.siteName,
+    themeMode: settings.themeMode,
+    themePrimary: settings.themePrimary,
+    logoMode: settings.siteLogoMode,
+    logoUrl: settings.siteLogoMode === "url" ? settings.siteLogoUrl : undefined,
+    logoTextStyle: settings.siteLogoTextStyle,
+    topbarBg: settings.topbarBg,
+    topbarText: settings.topbarText,
+    sidebarBg: settings.sidebarBg,
+    sidebarText: settings.sidebarText,
+    user: user ? { name: user.name, email: user.email, avatar_url: user.avatar_url, role: user.role } : undefined,
+    userRole: user?.role || "",
+    menu: user
+      ? [{ label: "Home", href: "/" }, { label: "Dashboard", href: "/admin" }, { label: "Browse optimizers", href: "#" }, { label: "Skins & passes", href: "#" }]
+      : [{ label: "Home", href: "/" }, { label: "Browse optimizers", href: "#" }, { label: "Skins & passes", href: "#" }]
+  });
+
+  const sidebar = `${mobileSidebar}${desktopSidebar}`;
 
   const main = `
     <div class="app-main">
@@ -83,7 +96,8 @@ publicRouter.get("/", async c => {
       sidebarText: settings.sidebarText,
       showSidebarToggle: true,
       userName: user?.name,
-      userAvatarUrl: user?.avatar_url ?? null
+      userAvatarUrl: user?.avatar_url ?? null,
+      user: user ? { name: user.name, email: user.email, avatar_url: user.avatar_url, role: user.role } : undefined
     })
   );
 });
