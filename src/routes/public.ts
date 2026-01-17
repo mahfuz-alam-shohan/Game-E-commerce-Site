@@ -7,6 +7,8 @@ import { renderMobileSidebar, renderDesktopSidebar } from "../ui/components/side
 
 export const publicRouter = new Hono<{ Bindings: Env; Variables: { user?: any } }>();
 
+// Apply user session loading (already done globally, but explicit for clarity)
+
 publicRouter.get("/", async c => {
   const adminExists = await hasAnyAdmin(c.env);
   const settings = await getSiteSettings(c.env);

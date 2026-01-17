@@ -1,7 +1,7 @@
 // src/lib/html.ts
 // Re-export types from ui components for backward compatibility
-export type { LayoutOptions } from "../ui/components/types";
 import type { LayoutOptions } from "../ui/components/types";
+export type { LayoutOptions };
 import type { ThemeMode } from "../services/setupService";
 import { renderMobileTopbar, renderDesktopTopbar } from "../ui/components/topbar";
 import { escapeHtml } from "../ui/components/types";
