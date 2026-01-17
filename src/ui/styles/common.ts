@@ -163,10 +163,81 @@ export function getCommonStyles(): string {
       gap: 14px;
     }
     .form-actions {
-      margin-top: 10px;
+      margin-top: 24px;
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
+    }
+
+    .alert {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid;
+    }
+
+    .alert-info {
+      background: rgba(59, 130, 246, 0.1);
+      border-left-color: #3b82f6;
+      color: #1e40af;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      border-left-color: #ef4444;
+      color: #dc2626;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-section {
+      margin-top: 32px;
+    }
+
+    .form-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-section-title::before {
+      content: '';
+      height: 1px;
+      flex: 1;
+      background: rgba(148, 163, 184, 0.2);
+    }
+
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-img {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text);
     }
 
     .list-row {
