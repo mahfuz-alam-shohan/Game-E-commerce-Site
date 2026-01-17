@@ -4,47 +4,64 @@ export function getCommonStyles(): string {
   return `
     main {
       width: 100%;
-      padding: 18px 16px 40px;
+      padding: 0;
       flex: 1;
     }
 
     .page {
       margin: 0 auto;
-      max-width: 1040px;
+      max-width: 1200px;
       width: 100%;
     }
+    
     .page-narrow {
       margin: 0 auto;
-      max-width: 540px;
+      max-width: 640px;
       width: 100%;
     }
+    
     .page-title {
-      font-size: 22px;
-      font-weight: 600;
-      margin: 0 0 4px 0;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--color-text);
+      letter-spacing: -0.025em;
     }
+    
     .page-subtitle {
-      margin: 0 0 20px 0;
-      font-size: 13px;
+      margin: 0 0 32px 0;
+      font-size: 15px;
       color: var(--color-muted);
+      font-weight: 400;
+      line-height: 1.5;
     }
 
     .card {
       background: var(--color-card-bg);
-      border-radius: 6px;
-      border: 1px solid var(--color-border);
-      padding: 18px 18px 20px;
-      box-shadow: none;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 24px 28px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
     }
+    
+    .card:hover {
+      border-color: rgba(148, 163, 184, 0.2);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+    
     .card-title {
-      margin: 0 0 6px 0;
-      font-size: 16px;
+      margin: 0 0 8px 0;
+      font-size: 18px;
       font-weight: 600;
+      color: var(--color-text);
     }
+    
     .card-subtitle {
-      margin: 0 0 14px 0;
-      font-size: 12px;
+      margin: 0 0 20px 0;
+      font-size: 14px;
       color: var(--color-muted);
+      line-height: 1.4;
     }
 
     form {
@@ -57,25 +74,75 @@ export function getCommonStyles(): string {
     .field {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       width: 100%;
     }
+    
     label {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
       color: var(--color-text);
+      margin-bottom: 2px;
     }
-    input {
-      padding: 7px 9px;
-      border-radius: 6px;
-      border: 1px solid var(--color-border);
-      background: var(--color-bg);
+    
+    input, select, textarea {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: var(--color-card-bg);
       color: var(--color-text);
       font-size: 14px;
       width: 100%;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    
     input::placeholder {
       color: var(--color-muted);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 40px;
+    }
+    
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--color-text);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(148, 163, 184, 0.15);
+      transform: translateY(-1px);
     }
     small {
       font-size: 11px;

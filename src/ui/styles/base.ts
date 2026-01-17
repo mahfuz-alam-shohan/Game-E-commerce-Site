@@ -2,11 +2,11 @@
 import type { ThemeMode } from "../../services/setupService";
 
 export function getBaseStyles(mode: ThemeMode, primary: string): string {
-  const bg = mode === "light" ? "#f9fafb" : "#020617";
-  const text = mode === "light" ? "#020617" : "#e5e7eb";
-  const border = mode === "light" ? "#e5e7eb" : "#111827";
-  const cardBg = mode === "light" ? "#ffffff" : "#020617";
-  const muted = mode === "light" ? "#6b7280" : "#9ca3af";
+  const bg = mode === "light" ? "#fafbfc" : "#0f172a";
+  const text = mode === "light" ? "#1e293b" : "#f1f5f9";
+  const border = mode === "light" ? "rgba(148, 163, 184, 0.2)" : "rgba(148, 163, 184, 0.1)";
+  const cardBg = mode === "light" ? "#ffffff" : "#1e293b";
+  const muted = mode === "light" ? "#64748b" : "#94a3b8";
 
   return `
     :root {
@@ -23,12 +23,15 @@ export function getBaseStyles(mode: ThemeMode, primary: string): string {
     }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: var(--color-bg);
       color: var(--color-text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
   `;
 }
