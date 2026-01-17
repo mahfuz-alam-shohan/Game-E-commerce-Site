@@ -21,7 +21,7 @@ export function getSidebarStyles(opts: LayoutOptions): string {
     
     .app-sidebar {
       width: 280px;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      background: var(--sidebar-bg);
       border-right: 1px solid rgba(148, 163, 184, 0.1);
       display: flex;
       flex-direction: column;
@@ -69,16 +69,22 @@ export function getSidebarStyles(opts: LayoutOptions): string {
     }
 
     .sidebar-logo-text {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: #f1f5f9;
-      letter-spacing: -0.025em;
+      color: var(--sidebar-text);
+      margin-bottom: 4px;
+    }
+
+    .sidebar-subtitle {
+      font-size: 12px;
+      color: var(--sidebar-text);
+      opacity: 0.7;
     }
 
     .sidebar-user-role {
       font-size: 11px;
       font-weight: 600;
-      color: #64748b;
+      color: var(--sidebar-text);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       background: rgba(100, 116, 139, 0.1);
@@ -102,13 +108,13 @@ export function getSidebarStyles(opts: LayoutOptions): string {
     }
 
     .sidebar-menu-group-title {
-      font-size: 10px;
-      font-weight: 700;
-      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sidebar-text);
+      opacity: 0.5;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.5px;
       margin-bottom: 8px;
-      padding: 0 12px;
     }
 
     .sidebar-menu-items {
@@ -123,7 +129,8 @@ export function getSidebarStyles(opts: LayoutOptions): string {
       justify-content: space-between;
       padding: 10px 12px;
       border-radius: 8px;
-      color: #cbd5e1;
+      color: var(--sidebar-text);
+      opacity: 0.8;
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
@@ -146,7 +153,8 @@ export function getSidebarStyles(opts: LayoutOptions): string {
 
     .sidebar-menu-item:hover {
       background: rgba(100, 116, 139, 0.1);
-      color: #f1f5f9;
+      color: var(--sidebar-text);
+      opacity: 1;
       transform: translateX(2px);
     }
 
@@ -181,7 +189,8 @@ export function getSidebarStyles(opts: LayoutOptions): string {
       align-items: center;
       gap: 8px;
       font-size: 12px;
-      color: #64748b;
+      color: var(--sidebar-text);
+      opacity: 0.6;
       font-weight: 500;
     }
 
@@ -204,7 +213,7 @@ export function getSidebarStyles(opts: LayoutOptions): string {
         width:280px;
         overflow:auto;
         padding: 60px 16px 20px;
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        background: var(--sidebar-bg);
       }
       body.sidebar-open .app-sidebar-mobile {
         display:flex;
